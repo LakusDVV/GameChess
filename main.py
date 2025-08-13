@@ -1,16 +1,19 @@
 import raylibpy as rl
-from shapes import Pawn
+import images
 
 rows = 8               # Кол-во строк
 cols = 8               # Кол-во столбцов
-tile_size = 50         # Размер квадрата (пиксели)
+tile_size = 70        # Размер квадрата (пиксели)
 width = cols * tile_size
 height = rows * tile_size
+light_color = rl.Color(240, 217, 181, 255)
+dark_color = rl.Color(181, 136, 99, 255)
+texture = rl.load_texture("images/Black_King.png")
+
 
 # Инициализация окна
 rl.init_window(width=width, height=height, title="Chess")
 rl.set_target_fps(60)
-myp = Pawn()
 
 while not rl.window_should_close():
     rl.begin_drawing()
@@ -19,9 +22,12 @@ while not rl.window_should_close():
     # Рисуем доску
     for y in range(rows):
         for x in range(cols):
-            color = rl.BLACK if (x + y) % 2 == 0 else rl.WHITE
+            color = dark_color if (x + y) % 2 == 0 else light_color
             rl.draw_rectangle(x * tile_size, y * tile_size, tile_size, tile_size, color)
-    myp.draw()
+
+
+    rl.draw_texture(texture, 100, 100, rl.WHITE)
     rl.end_drawing()
 
+rl.unload_texture(texture)
 rl.close_window()

@@ -1,8 +1,10 @@
 
 class Chessboard:
     def __init__(self, *, different: int = 50, rows: int = 8, line: int = 8):
+        self.line = line
+        self.rows = rows
         self.difference = different
-        self.y = [str(i) for i in range(1, line + 1)]
+        self.y = [str(i) for i in range(1, self.line + 1)]
         self.x = ["a", "b", "c", "d", "e", "f", "g", "h"]
         self.chessboard = {
             str(cord_y): {
@@ -25,5 +27,5 @@ class Chessboard:
         print(self.chessboard)
 
 
-c = Chessboard(width=8*50, height=8*50, rows=8, line=8)
+c = Chessboard()
 
