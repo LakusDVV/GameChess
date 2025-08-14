@@ -6,7 +6,7 @@ class Chessboard:
         self.difference = different
         self.y = [str(i) for i in range(1, self.line + 1)]
         self.x = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        self.chessboard = {
+        self.chessboard_cords = {
             str(cord_y): {
                 cord_x: (int(self.difference * index_x), int(self.difference * index_y))
                 for index_x, cord_x in enumerate(self.x)
@@ -16,15 +16,15 @@ class Chessboard:
 
     def find_cords(self, chess_cord) -> (int, int):
         x, y = chess_cord
-        return self.chessboard[y][x]
+        return self.chessboard_cords[y][x]
 
 
     def get_chessboard(self):
-        return self.chessboard
+        return self.chessboard_cords
 
 
     def __str__(self):
-        print(self.chessboard)
+        print(self.chessboard_cords)
 
 
 c = Chessboard()

@@ -1,5 +1,5 @@
 import raylibpy as rl
-import images
+
 
 rows = 8               # Кол-во строк
 cols = 8               # Кол-во столбцов
@@ -8,12 +8,14 @@ width = cols * tile_size
 height = rows * tile_size
 light_color = rl.Color(240, 217, 181, 255)
 dark_color = rl.Color(181, 136, 99, 255)
-texture = rl.load_texture("images/Black_King.png")
+
 
 
 # Инициализация окна
 rl.init_window(width=width, height=height, title="Chess")
 rl.set_target_fps(60)
+texture = rl.load_texture("images/black_king.png")
+
 
 while not rl.window_should_close():
     rl.begin_drawing()
