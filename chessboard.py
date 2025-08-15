@@ -1,4 +1,4 @@
-class Chessboard_cords:
+class ChessboardCords:
     def __init__(self):
         self.line = 8
         self.rows = 8

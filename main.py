@@ -18,7 +18,7 @@ light_color = rl.Color(240, 217, 181, 255)
 dark_color = rl.Color(181, 136, 99, 255)
 
 myChessboard = chessboard.Chessboard()
-CK = chessboard.Chessboard_cords()
+CK = chessboard.ChessboardCords()
 
 # Инициализация окна
 import draw
