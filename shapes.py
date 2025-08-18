@@ -25,6 +25,7 @@ class Figure:
         )
         self.cord = new_cord
 
+
         self.draw()
 
 
