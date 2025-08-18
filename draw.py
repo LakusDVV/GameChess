@@ -1,6 +1,10 @@
 import raylibpy as rl
 import shapes as s
+from mouse_move import Mouse
 
+
+
+m = Mouse()
 rows = 8               # Кол-во строк
 cols = 8               # Кол-во столбцов
 tile_size = 70        # Размер квадрата (пиксели)
@@ -31,6 +35,18 @@ while not rl.window_should_close():
             rl.draw_rectangle(x * tile_size, y * tile_size, tile_size, tile_size, color)
     my_Black_King.draw()
     my_White_King.draw()
+
+    mouse_x = rl.get_mouse_x()
+    mouse_y = rl.get_mouse_y()
+
+    # Проверяем нажатия кнопок мыши
+    left_pressed = rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)  # нажата в этом кадре
+    if left_pressed:
+        m.mouse_right_button(mouse_x, mouse_y)
+
+
+
+
 
     rl.end_drawing()
 
