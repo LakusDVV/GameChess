@@ -52,6 +52,7 @@ class Chessboard:
     def __init__(self):
         self.chessboard = [[None for _ in range(8)] for _ in range(8)]
 
+
     def get_chessboard(self):
         return self.chessboard
 

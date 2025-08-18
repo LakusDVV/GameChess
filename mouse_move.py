@@ -17,6 +17,7 @@ class Mouse:
     def mouse_right_button(self, mouse_x, mouse_y):
         new_x = mouse_x // tile_size
         new_y = (rows * tile_size - mouse_y) // tile_size
+
         print(self.x, self.y, new_x, new_y)
 
         if self.x is not None and self.y is not None:
