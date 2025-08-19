@@ -42,6 +42,7 @@ while not rl.window_should_close():
     # Проверяем нажатия кнопок мыши
     left_pressed = rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)  # нажата в этом кадре
     if left_pressed:
+        print(mouse_x,mouse_y)
         m.mouse_right_button(mouse_x, mouse_y)
 
 

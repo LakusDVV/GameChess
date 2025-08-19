@@ -15,6 +15,7 @@ class Figure:
 
     def draw(self):
         x, y = self.cord
+
         rl.draw_texture(self.texture, x * tile_size, y * tile_size, rl.WHITE)
 
 

@@ -3,7 +3,8 @@ class ChessboardCords:
         self.line = 8
         self.rows = 8
         self.difference = 70
-        self.y = [str(i) for i in range(self.line)]
+        self.y = [str(i) for i in range(self.line - 1, -1, -1)]
+        # self.y = [str(i) for i in range(self.line)]
         self.x = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
         # self.chessboard_chess_cords_to_array = {
