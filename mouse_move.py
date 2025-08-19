@@ -23,8 +23,8 @@ class Mouse:
         if self.x is not None and self.y is not None:
             try:
                 myChessboard.get_chessboard()[self.y][self.x].move(new_cord=(new_x, new_y))
-            except:
-                print("Перемещение не удалось")
+            except Exception as e:
+                print("Перемещение не удалось", e)
             self.y = None
             self.x = None
 
