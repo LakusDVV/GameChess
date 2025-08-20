@@ -1,9 +1,10 @@
 import raylibpy as rl
 from main import myChessboard, CK
 
-tile_size = 70
 class Figure:
     def __init__(self, *, texture, color, start_cord: str):
+        self.rows, self.cols = 8, 8
+        self.tile_size =  70
         self.texture = texture
         self.color = color
         self.cord = CK.get_cords_for_array(start_cord)
@@ -16,7 +17,7 @@ class Figure:
     def draw(self):
         x, y = self.cord
 
-        rl.draw_texture(self.texture, x * tile_size, y * tile_size, rl.WHITE)
+        rl.draw_texture(self.texture, x * self.tile_size, y * self.tile_size, rl.WHITE)
 
 
     def move(self, new_cord):
@@ -28,6 +29,9 @@ class Figure:
 
 
         self.draw()
+
+
+
 
 
 
@@ -51,3 +55,17 @@ class King(Figure):
             color=color,
             start_cord=start_cord
         )
+
+    def draw_move(self):
+        deltas = [(-1, 0), (1, 0), (0, -1), (0, 1),
+                  (-1, -1), (-1, 1), (1, -1), (1, 1)]
+        neighbors = []
+        x, y = self.cord
+        for dy, dx in deltas:
+            ny, nx = y + dy, x + dx
+            if 0 <= ny < self.rows and 0 <= nx < self.cols:
+                neighbors.append((nx, ny))
+
+
+
+        return neighbors

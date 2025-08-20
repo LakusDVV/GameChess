@@ -22,7 +22,8 @@ white_king_texture = rl.load_texture("images/white_king.png")
 
 my_Black_King = s.King(color="black", texture=black_king_texture, start_cord="e8")
 my_White_King = s.King(color="white", texture=white_king_texture, start_cord="e1")
-
+show_circle = False
+ri = []
 
 while not rl.window_should_close():
     rl.begin_drawing()
@@ -43,7 +44,12 @@ while not rl.window_should_close():
     left_pressed = rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)  # нажата в этом кадре
     if left_pressed:
         print(mouse_x,mouse_y)
-        m.mouse_right_button(mouse_x, mouse_y)
+        ri = m.mouse_right_button(mouse_x, mouse_y)
+
+
+    if ri:
+        for x, y in ri:
+            rl.draw_circle((x + 1) * tile_size - tile_size / 2, (y+1) * tile_size - tile_size / 2, 15, rl.GREEN)
 
 
 
