@@ -26,16 +26,21 @@ class Mouse:
             try:
 
                 myChessboard.get_chessboard()[self.y][self.x].move(new_cord=(new_x, new_y))
-
+                self.t = True
             except Exception as e:
                 print("Перемещение не удалось", e)
+                self.t = False
 
-            self.t = True
+
 
         if not self.t:
             self.x = mouse_x // tile_size
             self.y = mouse_y // tile_size
-            return myChessboard.get_chessboard()[new_y][new_x].draw_move()
+            try:
+                return myChessboard.get_chessboard()[new_y][new_x].draw_move()
+            except Exception as e:
+                print("Перемещение не удалось", e)
+                return  []
         else:
             self.x = None
             self.y = None
