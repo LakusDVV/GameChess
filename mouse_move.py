@@ -22,7 +22,6 @@ class Mouse:
 
         print(self.x, self.y, new_x, new_y)
 
-        # Ломается при перемежении фигуры в тоже место
 
         if self.x is not None and self.y is not None:
             try:

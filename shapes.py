@@ -69,6 +69,6 @@ class King(Figure):
         return neighbors
 
     def __str__(self):
-        return "♚" if self.color == "black" else "♔"
+        return "♚" if self.color == "white" else "♔"
 
 

@@ -21,7 +21,7 @@ white_king_texture = rl.load_texture("images/white_king.png")
 
 
 my_Black_King = s.King(color="black", texture=black_king_texture, start_cord="e8")
-my_White_King = s.King(color="white", texture=white_king_texture, start_cord="e1")
+# my_White_King = s.King(color="white", texture=white_king_texture, start_cord="e1")
 show_circle = False
 ri = []
 
@@ -35,7 +35,7 @@ while not rl.window_should_close():
             color = dark_color if (x + y) % 2 == 0 else light_color
             rl.draw_rectangle(x * tile_size, y * tile_size, tile_size, tile_size, color)
     my_Black_King.draw()
-    my_White_King.draw()
+    # my_White_King.draw()
 
     mouse_x = rl.get_mouse_x()
     mouse_y = rl.get_mouse_y()
