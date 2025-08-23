@@ -52,10 +52,6 @@ while not rl.window_should_close():
             rl.draw_circle((x + 1) * tile_size - tile_size / 2, (y+1) * tile_size - tile_size / 2, 15, rl.GREEN)
 
 
-
-
-
-
     rl.end_drawing()
 
 

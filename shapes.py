@@ -2,7 +2,7 @@ import raylibpy as rl
 from main import myChessboard, CK
 
 class Figure:
-    def __init__(self, *, texture, color, start_cord: str):
+    def __init__(self, *, texture, color, start_cord):
         self.rows, self.cols = 8, 8
         self.tile_size =  70
         self.texture = texture
@@ -40,7 +40,7 @@ class Figure:
 
 
 class Pawn(Figure):
-    def __init__(self, *, texture, color,start_cord: str):
+    def __init__(self, *, texture, color,start_cord):
         super().__init__(
             texture=texture,
             color=color,
@@ -66,6 +66,9 @@ class King(Figure):
             if 0 <= ny < self.rows and 0 <= nx < self.cols:
                 neighbors.append((nx, ny))
 
-
-
         return neighbors
+
+    def __str__(self):
+        return "♚" if self.color == "black" else "♔"
+
+

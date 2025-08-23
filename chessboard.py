@@ -51,7 +51,7 @@ class ChessboardCords:
 
 class Chessboard:
     def __init__(self):
-        self.chessboard = [[None for _ in range(8)] for _ in range(8)]
+        self.chessboard = [[0 for _ in range(8)] for _ in range(8)]
 
 
     def get_chessboard(self):
@@ -67,5 +67,6 @@ class Chessboard:
     def redact_board_move(self, *, new_cord, cord):
         x, y = cord
         new_x, new_y = new_cord
-        self.chessboard[new_y][new_x] = self.chessboard[y][x]
-        self.chessboard[y][x] = None
+        if (new_x, new_y) != (x, y):
+            self.chessboard[new_y][new_x] = self.chessboard[y][x]
+            self.chessboard[y][x] = 0
