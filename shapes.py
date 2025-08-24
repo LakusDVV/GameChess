@@ -1,17 +1,14 @@
 import raylibpy as rl
-from main import myChessboard, CK
 
 class Figure:
-    def __init__(self, *, texture, color, start_cord):
+    def __init__(self, *, texture, color, start_cord, board):
         self.rows, self.cols = 8, 8
         self.tile_size =  70
         self.texture = texture
         self.color = color
-        self.cord = CK.get_cords_for_array(start_cord)
-        myChessboard.redact_board_add(
-            cord=self.cord,
-            element=self
-        )
+        self.board = board
+        self.cord = self.board.get_cords_for_array(start_cord)
+
 
 
     def draw(self):
@@ -21,39 +18,35 @@ class Figure:
 
 
     def move(self, new_cord):
-        myChessboard.redact_board_move(
+        self.board.redact_board_move(
             new_cord=new_cord,
             cord=self.cord
         )
         self.cord = new_cord
-
-
         self.draw()
 
 
 
-
-
-
-
-
-
-
 class Pawn(Figure):
-    def __init__(self, *, texture, color,start_cord):
+    def __init__(self, *, texture, color, start_cord, board):
         super().__init__(
             texture=texture,
             color=color,
-            start_cord=start_cord
+            start_cord=start_cord,
+            board=board
         )
+
+    def get_moves(self, board):
+        pass
 
 
 class King(Figure):
-    def __init__(self, *, texture, color, start_cord):
+    def __init__(self, *, texture, color, start_cord, board):
         super().__init__(
             texture=texture,
             color=color,
-            start_cord=start_cord
+            start_cord=start_cord,
+            board=board
         )
 
     def draw_move(self):
@@ -68,6 +61,8 @@ class King(Figure):
 
         return neighbors
 
+    def get_moves(self, board):
+        pass
     def __str__(self):
         return "♚" if self.color == "white" else "♔"
 
