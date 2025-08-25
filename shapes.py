@@ -1,13 +1,13 @@
 import raylibpy as rl
 
 class Figure:
-    def __init__(self, *, texture, color, start_cord, board):
+    def __init__(self, *, texture, color, cord: (int, int), board):
         self.rows, self.cols = 8, 8
         self.tile_size =  70
         self.texture = texture
         self.color = color
         self.board = board
-        self.cord = self.board.get_cords_for_array(start_cord)
+        self.cord = cord
 
 
 
@@ -28,11 +28,11 @@ class Figure:
 
 
 class Pawn(Figure):
-    def __init__(self, *, texture, color, start_cord, board):
+    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board):
         super().__init__(
             texture=texture,
             color=color,
-            start_cord=start_cord,
+            cord=cord,
             board=board
         )
 
@@ -41,13 +41,14 @@ class Pawn(Figure):
 
 
 class King(Figure):
-    def __init__(self, *, texture, color, start_cord, board):
+    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board):
         super().__init__(
             texture=texture,
             color=color,
-            start_cord=start_cord,
+            cord=cord,
             board=board
         )
+
 
     def draw_move(self):
         deltas = [(-1, 0), (1, 0), (0, -1), (0, 1),
@@ -61,8 +62,11 @@ class King(Figure):
 
         return neighbors
 
+
     def get_moves(self, board):
         pass
+
+
     def __str__(self):
         return "♚" if self.color == "white" else "♔"
 

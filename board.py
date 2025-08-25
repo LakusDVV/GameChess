@@ -8,18 +8,9 @@ class Chessboard:
         self.tile_size = tile_size
         self.light_color = rl.Color(240, 217, 181, 255)
         self.dark_color = rl.Color(181, 136, 99, 255)
+        self.figures = []
 
-        y = [str(i) for i in range(self.cols - 1, -1, -1)]
-        # self.y = [str(i) for i in range(self.line)]
-        x = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
-        self.chessboard_chess_cords_to_array = {
-            str(cord_y): {
-                cord_x: (int(index_x), int(index_y))
-                for index_x, cord_x in enumerate(x)
-            }
-            for index_y, cord_y in enumerate(y)
-        }
         self.chessboard = [[0 for _ in range(8)] for _ in range(8)]
 
 
@@ -27,13 +18,12 @@ class Chessboard:
         for y in range(self.rows):
             for x in range(self.cols):
                 color = self.dark_color if (x + y) % 2 == 0 else self.light_color
-                rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
-                                  self.tile_size, self.tile_size, color)
-
-    def get_cords_for_array(self, chess_cord) -> (int, int):
-        x, y = chess_cord
-        y = str(int(y) - 1)
-        return self.chessboard_chess_cords_to_array[y][x]
+                rl.draw_rectangle(
+                    x * self.tile_size, y * self.tile_size,
+                    self.tile_size, self.tile_size, color
+                )
+        for x in self.figures:
+            x.draw()
 
 
     def get_chessboard(self):
@@ -42,9 +32,14 @@ class Chessboard:
 
     def redact_board_add(self, *, element, cord: (int, int)):
         x, y = cord
-        element.cord = (x, y)  # фигура знает где она стоит
-        element.board = self  # фигура знает на какой доске
-        self.chessboard[y][x] = element
+        if self.chessboard[y][x] == 0:
+            element.cord = (x, y)  # фигура знает где она стоит
+            element.board = self  # фигура знает на какой доске
+            self.chessboard[y][x] = element
+            self.figures.append(element)
+            return 1
+        else:
+            return 0
 
 
     def redact_board_move(self, *, new_cord, cord):
