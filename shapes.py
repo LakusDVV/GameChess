@@ -59,12 +59,7 @@ class King(Figure):
             ny, nx = y + dy, x + dx
             if 0 <= ny < self.rows and 0 <= nx < self.cols:
                 neighbors.append((nx, ny))
-
         return neighbors
-
-
-    def get_moves(self, board):
-        pass
 
 
     def __str__(self):

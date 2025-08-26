@@ -9,8 +9,8 @@ class Game:
         self.cols = cols
         self.tile_size = tile_size
         self.chessboard = Chessboard()
-        self.nx, self.ny = None, None
-
+        self.old_x, self.old_y = None, None
+        self.mouse_first_right_click = False
         self.ri = []
         self.chessboard_chess_cords_to_array = None
         self.initialize_convert_board()
@@ -37,16 +37,31 @@ class Game:
         mouse_x = rl.get_mouse_x()
         mouse_y = rl.get_mouse_y()
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
-            print(mouse_x, mouse_y)
             self.ri = self.mouse_right_button(mouse_x, mouse_y)
+            if self.ri[0] == 2:
+                if self.ri[1]:
+                    print("Second click, move is successful")
+                else:
+                    print("Error")
+            else:
+                print("First click")
+        if self.ri:
+            rl.begin_drawing()
+            for x, y in self.ri:
+                rl.draw_circle(
+                    (x + 1) * self.tile_size - self.tile_size / 2,
+                    (y + 1) * self.tile_size - self.tile_size / 2,
+                    12, rl.GREEN
+                )
+            rl.end_drawing()
+
+
 
 
     def draw(self):
         rl.begin_drawing()
-        rl.clear_background(rl.RAYWHITE)
 
         self.chessboard.draw()
-
         rl.end_drawing()
 
 
@@ -63,7 +78,7 @@ class Game:
             texture=black_king_texture,
             board=self.chessboard
         )
-        # self.chessboard.redact_board_add(element=black_king, cord=self.convert_board("e8"))
+
         if self.chessboard.redact_board_add(element=black_king, cord=self.convert_board("e8")):
             print("Фигура установлена")
         else:
@@ -75,11 +90,46 @@ class Game:
             cord=self.convert_board("e1"),
             board=self.chessboard
         )
-        # self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e8"))
+
         if self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e8")):
             print("Фигура установлена")
         else:
             print("Клетка занята")
+
+
+    def mouse_right_button(self, mouse_x, mouse_y):
+        new_x = mouse_x // self.tile_size
+        new_y = mouse_y // self.tile_size
+
+        print(self.old_x, self.old_y, new_x, new_y)
+
+        if not self.mouse_first_right_click:
+            self.mouse_first_right_click = True
+            self.old_x = new_x
+            self.old_y = new_y
+
+            for i in self.chessboard.get_chessboard():
+                for j in i:
+                    print(j, end=" ")
+                print()
+            print()
+            return self.chessboard.get_chessboard()[new_y][new_x].draw_move()
+        else:
+            self.mouse_first_right_click = False
+
+
+            try:
+                self.chessboard.redact_board_move(old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y))
+            except Exception as e:
+                print("Перемещение не удалось", e)
+                return [2, False]
+
+            for i in self.chessboard.get_chessboard():
+                for j in i:
+                    print(j, end=" ")
+                print()
+            print()
+            return [2, True]
 
 
     def initialize_convert_board(self):
@@ -99,49 +149,6 @@ class Game:
         x, y = chess_cord
         y = str(int(y) - 1)
         return self.chessboard_chess_cords_to_array[y][x]
-
-
-    def mouse_right_button(self, mouse_x, mouse_y):
-        self.t = False
-        new_x = mouse_x // self.tile_size
-        new_y = mouse_y // self.tile_size
-
-        print(self.nx, self.ny, new_x, new_y)
-
-        if self.nx and self.ny:
-            try:
-                self.chessboard.get_chessboard()[self.ny][self.nx].move(new_cord=(new_x, new_y))
-
-                for i in self.chessboard.get_chessboard():
-                    for j in i:
-                        print(j, end=" ")
-                    print()
-                print()
-
-                self.t = True
-            except Exception as e:
-                print("Перемещение не удалось", e)
-                self.t = False
-
-        if not self.t:
-            self.nx = new_x
-            self.ny = new_y
-            try:
-
-                for i in self.chessboard.get_chessboard():
-                    for j in i:
-                        print(j, end=" ")
-                    print()
-                print()
-                return self.chessboard.get_chessboard()[new_y][new_x].draw_move()
-
-            except Exception as e:
-                print("Перемещение не удалось", e)
-                return  []
-        else:
-            self.nx = None
-            self.ny = None
-            return []
 
 
 if __name__ == "game":

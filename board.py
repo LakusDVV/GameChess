@@ -32,7 +32,7 @@ class Chessboard:
 
     def redact_board_add(self, *, element, cord: (int, int)):
         x, y = cord
-        if self.chessboard[y][x] == 0:
+        if not self.chessboard[y][x]:
             element.cord = (x, y)  # фигура знает где она стоит
             element.board = self  # фигура знает на какой доске
             self.chessboard[y][x] = element
@@ -42,11 +42,11 @@ class Chessboard:
             return 0
 
 
-    def redact_board_move(self, *, new_cord, cord):
-        x, y = cord
+    def redact_board_move(self, *, new_cord, old_cord):
+        old_x, old_y = old_cord
         new_x, new_y = new_cord
-        if (new_x, new_y) != (x, y):
-            piece = self.chessboard[y][x]
+        if (new_x, new_y) != (old_x, old_y):
+            piece = self.chessboard[old_y][old_x]
             self.chessboard[new_y][new_x] = piece
-            self.chessboard[y][x] = 0
+            self.chessboard[old_y][old_x] = 0
             piece.cord = (new_x, new_y)  # обновляем координаты у фигуры
