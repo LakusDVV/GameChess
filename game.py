@@ -14,6 +14,8 @@ class Game:
         self.ri = []
         self.chessboard_chess_cords_to_array = None
         self.initialize_convert_board()
+        self.motion = True
+        self.color_motion = {"black": 0, "white": 1}
 
         width = self.chessboard.cols * self.chessboard.tile_size
         height = self.chessboard.rows * self.chessboard.tile_size
@@ -45,23 +47,22 @@ class Game:
                     print("Error")
             else:
                 print("First click")
-        if self.ri:
-            rl.begin_drawing()
+
+
+    def draw(self):
+        rl.begin_drawing()
+        rl.clear_background(rl.RAYWHITE)
+
+        self.chessboard.draw()
+
+        if self.mouse_first_right_click:
             for x, y in self.ri:
                 rl.draw_circle(
                     (x + 1) * self.tile_size - self.tile_size / 2,
                     (y + 1) * self.tile_size - self.tile_size / 2,
                     12, rl.GREEN
                 )
-            rl.end_drawing()
 
-
-
-
-    def draw(self):
-        rl.begin_drawing()
-
-        self.chessboard.draw()
         rl.end_drawing()
 
 
@@ -91,7 +92,7 @@ class Game:
             board=self.chessboard
         )
 
-        if self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e8")):
+        if self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e1")):
             print("Фигура установлена")
         else:
             print("Клетка занята")
@@ -103,23 +104,32 @@ class Game:
 
         print(self.old_x, self.old_y, new_x, new_y)
 
-        if not self.mouse_first_right_click:
-            self.mouse_first_right_click = True
-            self.old_x = new_x
-            self.old_y = new_y
 
-            for i in self.chessboard.get_chessboard():
-                for j in i:
-                    print(j, end=" ")
-                print()
-            print()
-            return self.chessboard.get_chessboard()[new_y][new_x].draw_move()
+        if not self.mouse_first_right_click:
+            try:
+                if self.motion == self.color_motion[self.chessboard.get_chessboard()[new_y][new_x].color]:
+
+                    self.mouse_first_right_click = True
+                    self.old_x = new_x
+                    self.old_y = new_y
+
+                    for i in self.chessboard.get_chessboard():
+                        for j in i:
+                            print(j, end=" ")
+                        print()
+                    print()
+                    return self.chessboard.get_chessboard()[new_y][new_x].draw_move()
+                else:
+                    return [6, False]
+            except Exception as e:
+                print("Пустая клетка", e)
+                return [4, False]
         else:
             self.mouse_first_right_click = False
 
-
             try:
                 self.chessboard.redact_board_move(old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y))
+                self.motion = not self.motion
             except Exception as e:
                 print("Перемещение не удалось", e)
                 return [2, False]
@@ -150,6 +160,9 @@ class Game:
         y = str(int(y) - 1)
         return self.chessboard_chess_cords_to_array[y][x]
 
+
+    def implementing_sequence_of_moves(self):
+        pass
 
 if __name__ == "game":
     game = Game()
