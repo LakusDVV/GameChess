@@ -11,7 +11,7 @@ class Game:
         self.chessboard = Chessboard()
         self.old_x, self.old_y = None, None
         self.mouse_first_right_click = False
-        self.ri = []
+        self.ri = {"status": 0, }
         self.chessboard_chess_cords_to_array = None
         self.initialize_convert_board()
         self.motion = True
@@ -40,8 +40,8 @@ class Game:
         mouse_y = rl.get_mouse_y()
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             self.ri = self.mouse_right_button(mouse_x, mouse_y)
-            if self.ri[0] == 2:
-                if self.ri[1]:
+            if self.ri["status"] == 2:
+                if self.ri["available_moves"]:
                     print("Second click, move is successful")
                 else:
                     print("Error")
@@ -56,12 +56,15 @@ class Game:
         self.chessboard.draw()
 
         if self.mouse_first_right_click:
-            for x, y in self.ri:
-                rl.draw_circle(
-                    (x + 1) * self.tile_size - self.tile_size / 2,
-                    (y + 1) * self.tile_size - self.tile_size / 2,
-                    12, rl.GREEN
-                )
+            if self.ri["status"] in (2, 3):
+                for x, y in self.ri["available_moves"]:
+                    rl.draw_circle(
+                        (x + 1) * self.tile_size - self.tile_size / 2,
+                        (y + 1) * self.tile_size - self.tile_size / 2,
+                        12, self.ri["color"]
+                    )
+
+
 
         rl.end_drawing()
 
@@ -104,42 +107,35 @@ class Game:
 
         print(self.old_x, self.old_y, new_x, new_y)
 
-
         if not self.mouse_first_right_click:
             try:
                 if self.motion == self.color_motion[self.chessboard.get_chessboard()[new_y][new_x].color]:
-
                     self.mouse_first_right_click = True
                     self.old_x = new_x
                     self.old_y = new_y
 
-                    for i in self.chessboard.get_chessboard():
-                        for j in i:
-                            print(j, end=" ")
-                        print()
-                    print()
-                    return self.chessboard.get_chessboard()[new_y][new_x].draw_move()
+                    self.print_chessboard()
+                    return {"status": 2, "available_moves": self.chessboard.get_chessboard()[new_y][new_x].draw_move(),
+                            "color": rl.GREEN, "exception": None}
                 else:
-                    return [6, False]
+                    return {"status": 3, "available_moves": self.chessboard.get_chessboard()[new_y][new_x].draw_move(),
+                            "color": rl.BLUE, "exception": None}
             except Exception as e:
                 print("Пустая клетка", e)
-                return [4, False]
+                return {"status": 0, "available_moves": None, "exception": e, "color": rl.RED}
         else:
             self.mouse_first_right_click = False
 
             try:
-                self.chessboard.redact_board_move(old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y))
-                self.motion = not self.motion
+                t = self.chessboard.redact_board_move(old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y))
+                if t:
+                    self.motion = not self.motion
             except Exception as e:
                 print("Перемещение не удалось", e)
-                return [2, False]
+                return {"status": 0, "available_moves": None, "exception": e, "color": rl.RED}
 
-            for i in self.chessboard.get_chessboard():
-                for j in i:
-                    print(j, end=" ")
-                print()
-            print()
-            return [2, True]
+            self.print_chessboard()
+            return {"status": 1, "available_moves": None, "color": rl.RED, "exception": None}
 
 
     def initialize_convert_board(self):
@@ -163,6 +159,13 @@ class Game:
 
     def implementing_sequence_of_moves(self):
         pass
+
+    def print_chessboard(self):
+        for i in self.chessboard.get_chessboard():
+            for j in i:
+                print(j, end=" ")
+            print()
+        print()
 
 if __name__ == "game":
     game = Game()
