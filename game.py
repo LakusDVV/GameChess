@@ -100,6 +100,29 @@ class Game:
         else:
             print("Клетка занята")
 
+        for i in range(self.rows):
+            x = s.Pawn(
+                color="white",
+                texture=white_pawn_texture,
+                cord=(6, i),
+                board=self.chessboard
+            )
+            if self.chessboard.redact_board_add(element=x, cord=(i, 6)):
+                print("Фигура установлена")
+            else:
+                print("Клетка занята")
+        for i in range(self.rows):
+            x = s.Pawn(
+                color="black",
+                texture=black_pawn_texture,
+                cord=(i, 1),
+                board=self.chessboard
+            )
+            if self.chessboard.redact_board_add(element=x, cord=(i, 1)):
+                print("Фигура установлена")
+            else:
+                print("Клетка занята")
+
 
     def mouse_right_button(self, mouse_x, mouse_y):
         new_x = mouse_x // self.tile_size

@@ -50,7 +50,8 @@ class Chessboard:
             new_piece = self.chessboard[new_y][new_x]
             self.chessboard[new_y][new_x] = piece
             self.chessboard[old_y][old_x] = 0
-            piece.cord = (new_x, new_y)  # обновляем координаты у фигуры
+            piece.cord = (new_x, new_y)
+            piece.first_move = False
             if new_piece:
                 self.figures.remove(new_piece)
             return 1
