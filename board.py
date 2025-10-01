@@ -55,8 +55,10 @@ class Chessboard:
             if new_piece:
                 self.figures.remove(new_piece)
             return 1
-
         return 0
+
+    def in_bounds(self, x, y):
+        return 0 <= x < 8 and 0 <= y < 8
 
 
 
