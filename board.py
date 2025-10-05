@@ -13,18 +13,19 @@ class Chessboard:
 
         self.chessboard = [[0 for _ in range(8)] for _ in range(8)]
 
-
-    def draw(self):
+    def draw_tiles(self):
         for y in range(self.rows):
             for x in range(self.cols):
-                color = self.dark_color if (x + y) % 2 == 0 else self.light_color
-                rl.draw_rectangle(
-                    x * self.tile_size, y * self.tile_size,
-                    self.tile_size, self.tile_size, color
-                )
-        for x in self.figures:
-            x.draw()
+                color = self.get_tile_color(x, y)
+                rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
+                                  self.tile_size, self.tile_size, color)
 
+    def draw_pieces(self):
+        for y in range(self.rows):
+            for x in range(self.cols):
+                piece = self.chessboard[y][x]
+                if piece != 0:
+                    piece.draw()
 
     def get_chessboard(self):
         return self.chessboard
@@ -41,6 +42,10 @@ class Chessboard:
         else:
             return 0
 
+    def get_tile_color(self, x, y):
+        light_color = rl.Color(240, 217, 181, 255)
+        dark_color = rl.Color(181, 136, 99, 255)
+        return dark_color if (x + y) % 2 == 0 else light_color
 
     def redact_board_move(self, *, new_cord, old_cord):
         old_x, old_y = old_cord
