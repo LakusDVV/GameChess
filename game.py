@@ -1,3 +1,5 @@
+import copy
+
 import raylibpy as rl
 import shapes as s
 from board import Chessboard
@@ -82,46 +84,80 @@ class Game:
 
     def creating_figures(self):
         # Загружаем текстуры
-        black_king_texture = rl.load_texture("images/black_king.png")
-        white_king_texture = rl.load_texture("images/white_king.png")
-        black_pawn_texture = rl.load_texture("images/black_pawn.png")
-        white_pawn_texture = rl.load_texture("images/white_pawn.png")
+        self.creating_white_figures()
+        self.creating_black_figures()
 
-        # Создаем фигуры
+
+    def creating_black_figures(self):
+        black_king_texture = rl.load_texture("images/black_king.png")
+        black_queen_texture = rl.load_texture("images/black_queen.png")
+        black_rook_texture = rl.load_texture("images/black_rook.png")
+        black_bishop_texture = rl.load_texture("images/black_bishop.png")
+        black_knight_texture = rl.load_texture("images/black_knight.png")
+        black_pawn_texture = rl.load_texture("images/black_pawn.png")
+
         black_king = s.King(
             color="black",
             texture=black_king_texture,
             board=self.chessboard
         )
-
         if self.chessboard.redact_board_add(element=black_king, cord=self.convert_board("e8")):
             print("Фигура установлена")
-        else:
-            print("Клетка занята")
+        else: print("Клетка занята")
 
-        white_king = s.King(
-            color="white",
-            texture=white_king_texture,
-            cord=self.convert_board("e1"),
+
+        black_queen = s.Queen(
+            color="black",
+            texture=black_queen_texture,
             board=self.chessboard
         )
-
-        if self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e1")):
+        if self.chessboard.redact_board_add(element=black_queen, cord=self.convert_board("d8")):
             print("Фигура установлена")
-        else:
-            print("Клетка занята")
+        else: print("Клетка занята")
 
-        for i in range(self.rows):
-            x = s.Pawn(
-                color="white",
-                texture=white_pawn_texture,
-                cord=(6, i),
-                board=self.chessboard
-            )
-            if self.chessboard.redact_board_add(element=x, cord=(i, 6)):
-                print("Фигура установлена")
-            else:
-                print("Клетка занята")
+
+        black_bishop = s.Bishop(
+            color="black",
+            texture=black_bishop_texture,
+            board=self.chessboard
+        )
+        copy_black_bishop = copy.deepcopy(black_bishop)
+        if self.chessboard.redact_board_add(element=black_bishop, cord=self.convert_board("c8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+        if self.chessboard.redact_board_add(element=copy_black_bishop, cord=self.convert_board("f8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+
+        black_knight = s.Knight(
+            color="black",
+            texture=black_knight_texture,
+            board=self.chessboard
+        )
+        copy_black_knight = copy.deepcopy(black_knight)
+        if self.chessboard.redact_board_add(element=black_knight, cord=self.convert_board("b8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+        if self.chessboard.redact_board_add(element=copy_black_knight, cord=self.convert_board("g8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+
+        black_rook = s.Rook(
+            color="black",
+            texture=black_rook_texture,
+            board=self.chessboard
+        )
+        copy_black_rook = copy.deepcopy(black_rook)
+        if self.chessboard.redact_board_add(element=black_rook, cord=self.convert_board("a8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+        if self.chessboard.redact_board_add(element=copy_black_rook, cord=self.convert_board("h8")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+
         for i in range(self.rows):
             x = s.Pawn(
                 color="black",
@@ -130,6 +166,89 @@ class Game:
                 board=self.chessboard
             )
             if self.chessboard.redact_board_add(element=x, cord=(i, 1)):
+                print("Фигура установлена")
+            else: print("Клетка занята")
+
+
+    def creating_white_figures(self):
+        white_king_texture = rl.load_texture("images/white_king.png")
+        white_queen_texture = rl.load_texture("images/white_queen.png")
+        white_rook_texture = rl.load_texture("images/white_rook.png")
+        white_bishop_texture = rl.load_texture("images/white_bishop.png")
+        white_knight_texture = rl.load_texture("images/white_knight.png")
+        white_pawn_texture = rl.load_texture("images/white_pawn.png")
+
+        white_king = s.King(
+            color="white",
+            texture=white_king_texture,
+            board=self.chessboard
+        )
+        if self.chessboard.redact_board_add(element=white_king, cord=self.convert_board("e1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+
+        white_queen = s.Queen(
+            color="white",
+            texture=white_queen_texture,
+            board=self.chessboard
+        )
+        if self.chessboard.redact_board_add(element=white_queen, cord=self.convert_board("d1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+
+        white_bishop = s.Bishop(
+            color="white",
+            texture=white_bishop_texture,
+            board=self.chessboard
+        )
+        copy_white_bishop = copy.deepcopy(white_bishop)
+        if self.chessboard.redact_board_add(element=white_bishop, cord=self.convert_board("c1")):
+            print("Фигура установлена")
+        else:
+            print("Клетка занята")
+
+        if self.chessboard.redact_board_add(element=copy_white_bishop, cord=self.convert_board("f1")):
+            print("Фигура установлена")
+        else:
+            print("Клетка занята")
+
+
+        white_knight = s.Knight(
+            color="white",
+            texture=white_knight_texture,
+            board=self.chessboard
+        )
+        copy_white_knight = copy.deepcopy(white_knight)
+        if self.chessboard.redact_board_add(element=white_knight, cord=self.convert_board("b1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+        if self.chessboard.redact_board_add(element=copy_white_knight, cord=self.convert_board("g1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+        white_rook = s.Rook(
+            color="white",
+            texture=white_rook_texture,
+            board=self.chessboard
+        )
+        copy_white_rook = copy.deepcopy(white_rook)
+        if self.chessboard.redact_board_add(element=white_rook, cord=self.convert_board("a1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+        if self.chessboard.redact_board_add(element=copy_white_rook, cord=self.convert_board("h1")):
+            print("Фигура установлена")
+        else: print("Клетка занята")
+
+        for i in range(self.rows):
+            x = s.Pawn(
+                color="white",
+                texture=white_pawn_texture,
+                cord=(i, 6),
+                board=self.chessboard
+            )
+            if self.chessboard.redact_board_add(element=x, cord=(i, 6)):
                 print("Фигура установлена")
             else:
                 print("Клетка занята")
