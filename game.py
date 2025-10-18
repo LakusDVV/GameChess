@@ -13,6 +13,15 @@ class MoveStatus(Enum):
     WRONG_TURN = 3    # фигура не того цвета
     ERROR = 4         # ошибка (невалидный ход и т.п.)
 
+
+def _make_response(status, moves, color):
+    return {
+        "status": status,
+        "moves": moves,
+        "color": color,
+    }
+
+
 class Game:
     def __init__(self, rows=8, cols=8, tile_size=70):
         self.rows = rows
@@ -21,7 +30,7 @@ class Game:
         self.chessboard = Chessboard()
         self.old_x, self.old_y = None, None
         self.mouse_first_right_click = False
-        self.ri = {"status": 0, }
+        self.ri = {"status": 0, "moves": []}
         self.chessboard_chess_cords_to_array = None
         self.initialize_convert_board()
         self.motion = "white"   # белые начинают партию
@@ -45,20 +54,22 @@ class Game:
 
     def update(self):
         mouse_x = rl.get_mouse_x()
-        mouse_y = rl.get_mouse_y()
+        mouse_y = rl.get_mouse_y()\
+
+        _dick = {
+            MoveStatus.MOVED: "Second click, move is successful",
+            MoveStatus.ERROR: "Error",
+            MoveStatus.SELECTED: "First click: piece selected",
+            MoveStatus.WRONG_TURN: "First click: wrong turn",
+            MoveStatus.EMPTY: "Clicked empty cell"
+
+        }
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             self.ri = self.mouse_right_button(mouse_x, mouse_y)
-            if self.ri["status"] == MoveStatus.MOVED:
-                print("Second click, move is successful")
-            elif self.ri["status"] == MoveStatus.ERROR:
-                print("Error")
-            elif self.ri["status"] == MoveStatus.SELECTED:
-                print("First click: piece selected")
-            elif self.ri["status"] == MoveStatus.WRONG_TURN:
-                print("First click: wrong turn")
-            elif self.ri["status"] == MoveStatus.EMPTY:
-                print("Clicked empty cell")
+
+            print(_dick[self.ri["status"]])
+
             self.print_chessboard()
 
 
@@ -72,7 +83,7 @@ class Game:
         # 2. Подсветка доступных ходов
         if self.mouse_first_right_click:
             if self.ri["status"] in (MoveStatus.SELECTED, MoveStatus.WRONG_TURN):
-                for (x, y) in self.ri["available_moves"]:
+                for (x, y) in self.ri["moves"]:
                     piece = self.chessboard.get_chessboard()[y][x]
                     self.draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
 
@@ -283,42 +294,42 @@ class Game:
             rl.draw_rectangle(left, top, tile_size, tile_size, rl.Color(0, 255, 0, 100))
 
             # Вырезаем центр, закрашивая цветом клетки
-            base_color = self.chessboard.get_tile_color(x, y)  # например, светлая/тёмная клетка
+            base_color = get_tile_color(x, y)  # например, светлая/тёмная клетка
             rl.draw_circle(cx, cy, tile_size // 1.95, base_color)
 
 
     def _handle_first_click(self, piece, x, y):
         if piece == 0:
-            return self._make_response(MoveStatus.EMPTY, None, rl.RED)
+            return _make_response(MoveStatus.EMPTY, None, rl.RED)
 
         if piece.color != self.motion:  # ❌ не тот цвет хода
-            return self._make_response(MoveStatus.WRONG_TURN, piece.draw_move(), rl.BLUE)
+            return _make_response(MoveStatus.WRONG_TURN, piece.draw_move(), rl.BLUE)
 
         # Всё ок — выбираем фигуру
         self.mouse_first_right_click = True
         self.old_x, self.old_y = x, y
-        return self._make_response(MoveStatus.SELECTED, piece.draw_move(), rl.GREEN)
+        return _make_response(MoveStatus.SELECTED, piece.draw_move(), rl.GREEN)
 
 
     def _handle_second_click(self, new_x, new_y):
-        moves = self.ri.get("available_moves") or []
+        moves = self.ri.get("moves") or []
         board = self.chessboard.get_chessboard()
         target = board[new_y][new_x]
 
         # 🔄 Если нажали на ту же клетку → отменяем выбор
         if (new_x, new_y) == (self.old_x, self.old_y):
             self.mouse_first_right_click = False
-            return self._make_response(MoveStatus.EMPTY, None, rl.RED)
+            return _make_response(MoveStatus.EMPTY, None, rl.RED)
 
         # 🎯 Если кликнули на свою другую фигуру → переназначаем выбор
         if target != 0 and target.color == self.motion:
             self.old_x, self.old_y = new_x, new_y
-            return self._make_response(MoveStatus.SELECTED, target.draw_move(), rl.GREEN)
+            return _make_response(MoveStatus.SELECTED, target.draw_move(), rl.GREEN)
 
         # ❌ Если клетка не входит в доступные ходы → снимаем выбор
         if (new_x, new_y) not in moves:
             self.mouse_first_right_click = False
-            return self._make_response(MoveStatus.EMPTY, None, rl.RED)
+            return _make_response(MoveStatus.EMPTY, None, rl.RED)
 
         # ✅ Если всё ок → делаем ход
         success = self.chessboard.redact_board_move(
@@ -330,20 +341,11 @@ class Game:
             self.mouse_first_right_click = False
             # переключаем ход
             self.motion = "black" if self.motion == "white" else "white"
-            return self._make_response(MoveStatus.MOVED, None, rl.RED)
+            return _make_response(MoveStatus.MOVED, None, rl.RED)
 
         # ❌ Ошибка хода → снимаем выделение
         self.mouse_first_right_click = False
-        return self._make_response(MoveStatus.ERROR, None, rl.RED)
-
-
-    def _make_response(self, status, moves, color):
-        return {
-            "status": status,
-            "available_moves": moves,
-            "color": color,
-        }
-
+        return _make_response(MoveStatus.ERROR, None, rl.RED)
 
     def initialize_convert_board(self):
         y = [str(i) for i in range(self.cols - 1, -1, -1)]
@@ -376,7 +378,3 @@ class Game:
             print()
         print()
 
-
-if __name__ == "game":
-    game = Game()
-    game.run()

@@ -1,5 +1,10 @@
 import raylibpy as rl
 
+
+def in_bounds(x, y):
+    return 0 <= x < 8 and 0 <= y < 8
+
+
 class Figure:
     def __init__(self, *, texture, color, cord: (int, int)=(None, None), board=None):
         self.rows, self.cols = 8, 8
@@ -18,18 +23,9 @@ class Figure:
 
 
 class Pawn(Figure):
-    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board=None):
-        super().__init__(
-            texture=texture,
-            color=color,
-            cord=cord,
-            board=board
-        )
-
 
     def draw_move(self):
         moves = []
-        eat_moves = []
         x, y = self.cord
         board = self.board.get_chessboard()
 
@@ -37,17 +33,17 @@ class Pawn(Figure):
         direction = -1 if self.color == "white" else 1
 
         # 1 шаг вперёд
-        if self.board.in_bounds(x, y + direction) and board[y + direction][x] == 0:
+        if in_bounds(x, y + direction) and board[y + direction][x] == 0:
             moves.append((x, y + direction))
 
             # 2 шага вперёд, если первый ход
-            if self.first_move and self.board.in_bounds(x, y + 2 * direction) and board[y + 2 * direction][x] == 0:
+            if self.first_move and in_bounds(x, y + 2 * direction) and board[y + 2 * direction][x] == 0:
                 moves.append((x, y + 2 * direction))
 
         # Атака по диагонали
         for dx in (-1, 1):
             nx, ny = x + dx, y + direction
-            if self.board.in_bounds(nx, ny):
+            if in_bounds(nx, ny):
                 target = board[ny][nx]
                 if target != 0 and target.color != self.color:
                     moves.append((nx, ny))
@@ -60,14 +56,6 @@ class Pawn(Figure):
 
 
 class King(Figure):
-    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board=None):
-        super().__init__(
-            texture=texture,
-            color=color,
-            cord=cord,
-            board=board
-        )
-
 
     def draw_move(self):
         deltas = [(-1, 0), (1, 0), (0, -1), (0, 1),
@@ -76,7 +64,7 @@ class King(Figure):
         x, y = self.cord
         for dy, dx in deltas:
             ny, nx = y + dy, x + dx
-            if not self.board.in_bounds(ny, nx):
+            if not in_bounds(ny, nx):
                 continue
 
             piece = self.board.get_chessboard()[ny][nx]
@@ -94,13 +82,6 @@ class King(Figure):
 
 
 class Rook(Figure):
-    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board=None):
-        super().__init__(
-            texture=texture,
-            color=color,
-            cord=cord,
-            board=board
-        )
 
     def draw_move(self):
         moves = []
@@ -111,42 +92,38 @@ class Rook(Figure):
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
 
-            if not self.board.in_bounds(ny, nx):
+            if not in_bounds(ny, nx):
                 continue
 
-            while True:
-                x += dx
-                y += dy
+            tx = nx
+            ty = ny
 
-                if not self.board.in_bounds(nx, ny): # проверка выхода за границы
+            while True:
+                tx += dx
+                ty += dy
+
+                if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ny][nx]
+                piece = self.board.get_chessboard()[ty][tx]
 
                 if piece == 0:  # пустая клетка
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
 
                 elif piece.color != self.color:  # враг
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
                     break
 
                 else:  # своя фигура → стоп
                     break
         return moves
 
+
     def __str__(self):
         return "♖" if self.color == "white" else "♜"
 
 
 class Bishop(Figure):
-    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board=None):
-        super().__init__(
-            texture=texture,
-            color=color,
-            cord=cord,
-            board=board
-        )
-
 
     def draw_move(self):
         moves = []
@@ -157,23 +134,26 @@ class Bishop(Figure):
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
 
-            if not self.board.in_bounds(ny, nx):
+            if not in_bounds(ny, nx):
                 continue
 
-            while True:
-                x += dx
-                y += dy
+            tx = nx
+            ty = ny
 
-                if not self.board.in_bounds(nx, ny):  # проверка выхода за границы
+            while True:
+                tx += dx
+                ty += dy
+
+                if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ny][nx]
+                piece = self.board.get_chessboard()[ty][tx]
 
                 if piece == 0:  # пустая клетка
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
 
                 elif piece.color != self.color:  # враг
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
                     break
 
                 else:  # своя фигура → стоп
@@ -197,7 +177,7 @@ class Knight(Figure):
         for dy, dx in deltas:
             ny, nx = y + dy, x + dx
 
-            if not self.board.in_bounds(ny, nx):
+            if not in_bounds(ny, nx):
                 continue
 
             piece = self.board.get_chessboard()[ny][nx]
@@ -216,14 +196,6 @@ class Knight(Figure):
 
 
 class Queen(Figure):
-    def __init__(self, *, texture, color, cord: (int, int) = (None, None), board=None):
-        super().__init__(
-            texture=texture,
-            color=color,
-            cord=cord,
-            board=board
-        )
-
 
     def draw_move(self):
         moves = []
@@ -235,23 +207,27 @@ class Queen(Figure):
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
 
-            if not self.board.in_bounds(ny, nx):
+            if not in_bounds(ny, nx):
                 continue
 
-            while True:
-                x += dx
-                y += dy
 
-                if not self.board.in_bounds(nx, ny):  # проверка выхода за границы
+            tx = nx
+            ty = ny
+
+            while True:
+                tx += dx
+                ty += dy
+
+                if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ny][nx]
+                piece = self.board.get_chessboard()[ty][tx]
 
                 if piece == 0:  # пустая клетка
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
 
                 elif piece.color != self.color:  # враг
-                    moves.append((nx, ny))
+                    moves.append((tx, ty))
                     break
 
                 else:  # своя фигура → стоп

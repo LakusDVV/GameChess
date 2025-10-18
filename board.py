@@ -1,6 +1,15 @@
 import raylibpy as rl
 
 
+def get_tile_color(x, y):
+    light_color = rl.Color(240, 217, 181, 255)
+    dark_color = rl.Color(181, 136, 99, 255)
+    return dark_color if (x + y) % 2 == 0 else light_color
+
+
+
+
+
 class Chessboard:
     def __init__(self, rows=8, cols=8, tile_size=70):
         self.rows = rows
@@ -16,7 +25,7 @@ class Chessboard:
     def draw_tiles(self):
         for y in range(self.rows):
             for x in range(self.cols):
-                color = self.get_tile_color(x, y)
+                color = get_tile_color(x, y)
                 rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
                                   self.tile_size, self.tile_size, color)
 
@@ -26,6 +35,7 @@ class Chessboard:
                 piece = self.chessboard[y][x]
                 if piece != 0:
                     piece.draw()
+
 
     def get_chessboard(self):
         return self.chessboard
@@ -42,11 +52,6 @@ class Chessboard:
         else:
             return 0
 
-    def get_tile_color(self, x, y):
-        light_color = rl.Color(240, 217, 181, 255)
-        dark_color = rl.Color(181, 136, 99, 255)
-        return dark_color if (x + y) % 2 == 0 else light_color
-
     def redact_board_move(self, *, new_cord, old_cord):
         old_x, old_y = old_cord
         new_x, new_y = new_cord
@@ -62,8 +67,7 @@ class Chessboard:
             return 1
         return 0
 
-    def in_bounds(self, x, y):
-        return 0 <= x < 8 and 0 <= y < 8
+
 
 
 
