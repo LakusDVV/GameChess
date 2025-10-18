@@ -21,6 +21,11 @@ def _make_response(status, moves, color):
         "color": color,
     }
 
+def get_tile_color(x, y):
+    light_color = rl.Color(240, 217, 181, 255)
+    dark_color = rl.Color(181, 136, 99, 255)
+    return dark_color if (x + y) % 2 == 0 else light_color
+
 
 class Game:
     def __init__(self, rows=8, cols=8, tile_size=70):
