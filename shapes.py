@@ -32,6 +32,70 @@ class Pawn(Figure):
         # Направление движения зависит от цвета
         direction = -1 if self.color == "white" else 1
 
+
+        self.append_attack_move(moves=moves, x=x, y=y, board=board, direction=direction, get_all=False)
+        self.append_motion_moves(moves=moves, x=x, y=y, board=board, direction=direction)
+
+        return moves
+
+    # Return all cells that the pawn can resemble and attack, even if there is no piece of a different color on them.
+    def get_all_moves(self):
+        """
+        Return all cells that the pawn can resemble and attack, even if there is no piece of a different color on them.
+        """
+
+        moves = []
+        x, y = self.cord
+        board = self.board.get_chessboard()
+
+        # Направление движения зависит от цвета
+        direction = -1 if self.color == "white" else 1
+
+        self.append_attack_move(moves=moves, x=x, y=y, board=board, direction=direction, get_all= True)
+        self.append_motion_moves(moves=moves, x=x, y=y, board=board, direction=direction)
+
+        return moves
+
+
+    # Return cells that the pawn can resemble.
+    def get_motion_moves(self):
+        moves = []
+        x, y = self.cord
+        board = self.board.get_chessboard()
+
+        # Направление движения зависит от цвета
+        direction = -1 if self.color == "white" else 1
+
+        self.append_motion_moves(moves=moves, x=x, y=y, board=board, direction=direction)
+        return
+
+
+    # Return cells that the pawn can attack.
+    def get_attack_move(self):
+        moves = []
+        x, y = self.cord
+        board = self.board.get_chessboard()
+
+        # Направление движения зависит от цвета
+        direction = -1 if self.color == "white" else 1
+
+        self.append_attack_move(moves=moves, x=x, y=y, board=board, direction=direction, get_all= False)
+        return
+
+
+    # Добавляет в переданный список клетки, на которые пешка может походить.
+    # Adds cells to the transmitted list that the pawn can resemble.
+    def append_motion_moves(self, *, moves: list, x, y, board, direction):
+        """
+        Adds cells to the transmitted list that the pawn can resemble.
+
+        :param moves:       the list to added
+        :param x:           coordinate x on which the figure stands
+        :param y:           coordinate y on which the figure stands
+        :param board:       the board on which the piece stands
+        :param direction:   direction for which figure will move
+        :return: None
+        """
         # 1 шаг вперёд
         if in_bounds(x, y + direction) and board[y + direction][x] == 0:
             moves.append((x, y + direction))
@@ -39,16 +103,22 @@ class Pawn(Figure):
             # 2 шага вперёд, если первый ход
             if self.first_move and in_bounds(x, y + 2 * direction) and board[y + 2 * direction][x] == 0:
                 moves.append((x, y + 2 * direction))
+        return
 
+
+    # Добавляет в переданный список клетки, на которые пешка может атаковать.
+    # Adds cells to the transmitted list that the pawn can attack.
+    # Параметр get_all вернет все ходы для атаки, даже если на них не стоит фигура другого цвета
+    # The get_all parameter returns all the moves to attack, even if there is no piece of a different color on them.
+    def append_attack_move(self, *, moves: list, x, y, board, direction, get_all: bool):
         # Атака по диагонали
         for dx in (-1, 1):
             nx, ny = x + dx, y + direction
             if in_bounds(nx, ny):
                 target = board[ny][nx]
-                if target != 0 and target.color != self.color:
+                if get_all or (target != 0 and target.color != self.color):
                     moves.append((nx, ny))
-
-        return moves
+        return
 
 
     def __str__(self):
