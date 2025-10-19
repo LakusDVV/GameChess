@@ -94,6 +94,7 @@ class Pawn(Figure):
         :param y:           coordinate y on which the figure stands
         :param board:       the board on which the piece stands
         :param direction:   direction for which figure will move
+
         :return: None
         """
         # 1 шаг вперёд
