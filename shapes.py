@@ -52,7 +52,7 @@ class Pawn(Figure):
 
 
     def __str__(self):
-        return "♙" if self.color == "white" else "♟"
+        return "♟" if self.color == "white" else "♙"
 
 
 class King(Figure):
@@ -120,7 +120,7 @@ class Rook(Figure):
 
 
     def __str__(self):
-        return "♖" if self.color == "white" else "♜"
+        return "♜" if self.color == "white" else "♖"
 
 
 class Bishop(Figure):
@@ -162,7 +162,7 @@ class Bishop(Figure):
 
 
     def __str__(self):
-        return "♗" if self.color == "white" else "♝"
+        return "♝" if self.color == "white" else "♗"
 
 
 class Knight(Figure):
@@ -188,11 +188,16 @@ class Knight(Figure):
             elif piece.color != self.color:  # враг
                 moves.append((nx, ny))
 
+
+
+
+
+
         return moves
 
 
     def __str__(self):
-        return "♘" if self.color == "white" else "♞"
+        return "♞" if self.color == "white" else "♘"
 
 
 class Queen(Figure):
@@ -236,4 +241,4 @@ class Queen(Figure):
 
 
     def __str__(self):
-        return "♕" if self.color == "white" else "♛"
+        return "♛" if self.color == "white" else "♕"

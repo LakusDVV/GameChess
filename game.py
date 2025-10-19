@@ -27,6 +27,25 @@ def get_tile_color(x, y):
     return dark_color if (x + y) % 2 == 0 else light_color
 
 
+def draw_highlight(x, y, tile_size, piece=None):
+    cx = x * tile_size + tile_size // 2
+    cy = y * tile_size + tile_size // 2
+    left = x * tile_size
+    top = y * tile_size
+
+    if piece is None:
+        # ✅ Подсветка пустой клетки — маленький кружок
+        rl.draw_circle(cx, cy, tile_size // 5.5, rl.Color(0, 255, 0, 120))
+    else:
+        # ✅ Подсветка занятой клетки — рамка по краям.
+        # рисуем зелёный полупрозрачный квадрат
+        rl.draw_rectangle(left, top, tile_size, tile_size, rl.Color(0, 255, 0, 100))
+
+        # Вырезаем центр, закрашивая цветом клетки
+        base_color = get_tile_color(x, y)  # например, светлая/тёмная клетка
+        rl.draw_circle(cx, cy, tile_size // 1.95, base_color)
+
+
 class Game:
     def __init__(self, rows=8, cols=8, tile_size=70):
         self.rows = rows
@@ -90,7 +109,7 @@ class Game:
             if self.ri["status"] in (MoveStatus.SELECTED, MoveStatus.WRONG_TURN):
                 for (x, y) in self.ri["moves"]:
                     piece = self.chessboard.get_chessboard()[y][x]
-                    self.draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
+                    draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
 
         # 3. Рисуем фигуры поверх подсветки
         self.chessboard.draw_pieces()
@@ -282,26 +301,6 @@ class Game:
 
         # Второй клик: попытка сделать ход
         return self._handle_second_click(new_x, new_y)
-
-
-    def draw_highlight(self, x, y, tile_size, piece=None):
-        cx = x * tile_size + tile_size // 2
-        cy = y * tile_size + tile_size // 2
-        left = x * tile_size
-        top = y * tile_size
-
-        if piece is None:
-            # ✅ Подсветка пустой клетки — маленький кружок
-            rl.draw_circle(cx, cy, tile_size // 5.5, rl.Color(0, 255, 0, 120))
-        else:
-            # ✅ Подсветка занятой клетки — рамка по краям
-            # Рисуем зелёный полупрозрачный квадрат
-            rl.draw_rectangle(left, top, tile_size, tile_size, rl.Color(0, 255, 0, 100))
-
-            # Вырезаем центр, закрашивая цветом клетки
-            base_color = get_tile_color(x, y)  # например, светлая/тёмная клетка
-            rl.draw_circle(cx, cy, tile_size // 1.95, base_color)
-
 
     def _handle_first_click(self, piece, x, y):
         if piece == 0:
