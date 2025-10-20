@@ -111,6 +111,22 @@ class Game:
                     piece = self.chessboard.get_chessboard()[y][x]
                     draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
 
+        wx, wy = self.chessboard.find_king("white")
+        if self.chessboard.get_chessboard()[wy][wx].is_in_check(figures=self.chessboard.figures):
+            x, y = self.chessboard.find_king("white")
+            color = rl.Color(230, 41, 55, 120)
+            rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
+                              self.tile_size, self.tile_size, color)
+
+        bx, by = self.chessboard.find_king("black")
+        if self.chessboard.get_chessboard()[by][bx].is_in_check(figures=self.chessboard.figures):
+            x, y = self.chessboard.find_king("black")
+            color = rl.Color(230, 41, 55, 120)
+            rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
+                              self.tile_size, self.tile_size, color)
+
+
+
         # 3. Рисуем фигуры поверх подсветки
         self.chessboard.draw_pieces()
 

@@ -64,15 +64,19 @@ class Chessboard:
         piece = self.chessboard[old_y][old_x]
         target = self.chessboard[new_y][new_x]
         self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = piece, 0
+        piece.cord = (new_x, new_y)
 
         if isinstance(piece, King):
+
             in_check = piece.is_in_check(figures=self.figures)
+            print(in_check)
         else:
             in_check = False
 
         if in_check:
             # откатываем
             self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
+            piece.cord = (old_x, old_y)
             return False
 
         piece.cord = (new_x, new_y)
@@ -87,7 +91,7 @@ class Chessboard:
     def find_king(self, color):
         for x in self.figures:
             if x.color == color and isinstance(x, King):
-                return King.cord
+                return x.get_cord()
         return None
 
 

@@ -133,6 +133,7 @@ class King(Figure):
         return False
 
 
+
     def get_cord(self):
         return self.cord
 
