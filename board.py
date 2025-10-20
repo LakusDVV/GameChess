@@ -1,5 +1,5 @@
 import raylibpy as rl
-
+from shapes import King
 
 def get_tile_color(x, y):
     light_color = rl.Color(240, 217, 181, 255)
@@ -22,12 +22,14 @@ class Chessboard:
 
         self.chessboard = [[0 for _ in range(8)] for _ in range(8)]
 
+
     def draw_tiles(self):
         for y in range(self.rows):
             for x in range(self.cols):
                 color = get_tile_color(x, y)
                 rl.draw_rectangle(x * self.tile_size, y * self.tile_size,
                                   self.tile_size, self.tile_size, color)
+
 
     def draw_pieces(self):
         for y in range(self.rows):
@@ -55,19 +57,37 @@ class Chessboard:
     def redact_board_move(self, *, new_cord, old_cord):
         old_x, old_y = old_cord
         new_x, new_y = new_cord
-        if (new_x, new_y) != (old_x, old_y):
-            piece = self.chessboard[old_y][old_x]
-            new_piece = self.chessboard[new_y][new_x]
-            self.chessboard[new_y][new_x] = piece
-            self.chessboard[old_y][old_x] = 0
-            piece.cord = (new_x, new_y)
-            piece.first_move = False
-            if new_piece:
-                self.figures.remove(new_piece)
-            return 1
-        return 0
+
+        if (new_x, new_y) == (old_x, old_y):
+            return False
+
+        piece = self.chessboard[old_y][old_x]
+        target = self.chessboard[new_y][new_x]
+        self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = piece, 0
+
+        if isinstance(piece, King):
+            in_check = piece.is_in_check(figures=self.figures)
+        else:
+            in_check = False
+
+        if in_check:
+            # откатываем
+            self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
+            return False
+
+        piece.cord = (new_x, new_y)
+        piece.first_move = False
+
+        if target:
+            self.figures.remove(target)
+
+        return True
 
 
-
+    def find_king(self, color):
+        for x in self.figures:
+            if x.color == color and isinstance(x, King):
+                return King.get_cord()
+        return None
 
 

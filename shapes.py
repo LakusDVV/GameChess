@@ -39,7 +39,7 @@ class Pawn(Figure):
         return moves
 
     # Return all cells that the pawn can resemble and attack, even if there is no piece of a different color on them.
-    def get_all_moves(self):
+    def get_attack_moves(self):
         """
         Return all cells that the pawn can resemble and attack, even if there is no piece of a different color on them.
         """
@@ -57,33 +57,6 @@ class Pawn(Figure):
         return moves
 
 
-    # Return cells that the pawn can resemble.
-    def get_motion_moves(self):
-        moves = []
-        x, y = self.cord
-        board = self.board.get_chessboard()
-
-        # Направление движения зависит от цвета
-        direction = -1 if self.color == "white" else 1
-
-        self.append_motion_moves(moves=moves, x=x, y=y, board=board, direction=direction)
-        return
-
-
-    # Return cells that the pawn can attack.
-    def get_attack_move(self):
-        moves = []
-        x, y = self.cord
-        board = self.board.get_chessboard()
-
-        # Направление движения зависит от цвета
-        direction = -1 if self.color == "white" else 1
-
-        self.append_attack_move(moves=moves, x=x, y=y, board=board, direction=direction, get_all= False)
-        return
-
-
-    # Добавляет в переданный список клетки, на которые пешка может походить.
     # Adds cells to the transmitted list that the pawn can resemble.
     def append_motion_moves(self, *, moves: list, x, y, board, direction):
         """
@@ -107,9 +80,7 @@ class Pawn(Figure):
         return
 
 
-    # Добавляет в переданный список клетки, на которые пешка может атаковать.
     # Adds cells to the transmitted list that the pawn can attack.
-    # Параметр get_all вернет все ходы для атаки, даже если на них не стоит фигура другого цвета
     # The get_all parameter returns all the moves to attack, even if there is no piece of a different color on them.
     def append_attack_move(self, *, moves: list, x, y, board, direction, get_all: bool):
         # Атака по диагонали
@@ -146,6 +117,24 @@ class King(Figure):
                 moves.append((nx, ny))
 
         return moves
+
+
+    def get_attack_moves(self):
+        return self.draw_move()
+
+
+    def is_in_check(self, *, figures):
+        for x in figures:
+            if self.color == x.color:
+                continue
+
+            if self.cord in x.get_attack_moves():
+                return True
+        return False
+
+
+    def get_cord(self):
+        return self.cord
 
 
     def __str__(self):
@@ -190,6 +179,10 @@ class Rook(Figure):
         return moves
 
 
+    def get_attack_moves(self):
+        return self.draw_move()
+
+
     def __str__(self):
         return "♜" if self.color == "white" else "♖"
 
@@ -232,6 +225,10 @@ class Bishop(Figure):
         return moves
 
 
+    def get_attack_moves(self):
+        return self.draw_move()
+
+
     def __str__(self):
         return "♝" if self.color == "white" else "♗"
 
@@ -265,6 +262,10 @@ class Knight(Figure):
 
 
         return moves
+
+
+    def get_attack_moves(self):
+        return self.draw_move()
 
 
     def __str__(self):
@@ -309,6 +310,10 @@ class Queen(Figure):
                 else:  # своя фигура → стоп
                     break
         return moves
+
+
+    def get_attack_moves(self):
+        return self.draw_move()
 
 
     def __str__(self):

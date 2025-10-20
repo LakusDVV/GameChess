@@ -336,10 +336,13 @@ class Game:
             return _make_response(MoveStatus.EMPTY, None, rl.RED)
 
         # ✅ Если всё ок → делаем ход
-        success = self.chessboard.redact_board_move(
-            old_cord=(self.old_x, self.old_y),
-            new_cord=(new_x, new_y)
-        )
+        if (new_x, new_y) != (self.old_x, self.old_y):
+            success = self.chessboard.redact_board_move(
+                old_cord=(self.old_x, self.old_y),
+                new_cord=(new_x, new_y)
+            )
+        else:
+            success = False
 
         if success:
             self.mouse_first_right_click = False
