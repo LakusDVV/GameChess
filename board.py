@@ -87,7 +87,7 @@ class Chessboard:
     def find_king(self, color):
         for x in self.figures:
             if x.color == color and isinstance(x, King):
-                return King.get_cord()
+                return King.cord
         return None
 
 

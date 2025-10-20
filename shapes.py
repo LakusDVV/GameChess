@@ -159,8 +159,7 @@ class Rook(Figure):
             ty = ny
 
             while True:
-                tx += dx
-                ty += dy
+
 
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
@@ -176,6 +175,8 @@ class Rook(Figure):
 
                 else:  # своя фигура → стоп
                     break
+                tx += dx
+                ty += dy
         return moves
 
 
@@ -205,8 +206,6 @@ class Bishop(Figure):
             ty = ny
 
             while True:
-                tx += dx
-                ty += dy
 
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
@@ -222,6 +221,9 @@ class Bishop(Figure):
 
                 else:  # своя фигура → стоп
                     break
+
+                tx += dx
+                ty += dy
         return moves
 
 
@@ -292,8 +294,6 @@ class Queen(Figure):
             ty = ny
 
             while True:
-                tx += dx
-                ty += dy
 
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
@@ -309,6 +309,9 @@ class Queen(Figure):
 
                 else:  # своя фигура → стоп
                     break
+
+                tx += dx
+                ty += dy
         return moves
 
 
