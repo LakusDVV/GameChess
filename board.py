@@ -54,7 +54,7 @@ class Chessboard:
         else:
             return 0
 
-    def redact_board_move(self, *, new_cord, old_cord):
+    def redact_board_move(self, *, new_cord, old_cord, simulate = False):
         old_x, old_y = old_cord
         new_x, new_y = new_cord
 
@@ -67,17 +67,27 @@ class Chessboard:
         piece.cord = (new_x, new_y)
 
         if isinstance(piece, King):
-
             in_check = piece.is_in_check(figures=self.figures)
-            print(in_check)
-        else:
-            in_check = False
 
+        else:
+            k = self.find_and_return_king(color=piece.get_color())
+            if k:
+                in_check = k.is_in_check(figures=self.figures)
+            else:
+                in_check = False
+
+        # Если поле хода, король под шахом, то откат
         if in_check:
-            # откатываем
             self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
             piece.cord = (old_x, old_y)
             return False
+
+        # Если симулируем - откатываем все назад
+        if simulate:
+            self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
+            piece.cord = (old_x, old_y)
+            return True
+
 
         piece.cord = (new_x, new_y)
         piece.first_move = False
@@ -88,6 +98,9 @@ class Chessboard:
         return True
 
 
+
+
+
     def find_king(self, color):
         for x in self.figures:
             if x.color == color and isinstance(x, King):
@@ -95,3 +108,6 @@ class Chessboard:
         return None
 
 
+    def find_and_return_king(self, color):
+        x, y = self.find_king(color=color)
+        return self.chessboard[y][x]

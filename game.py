@@ -27,6 +27,11 @@ def get_tile_color(x, y):
     return dark_color if (x + y) % 2 == 0 else light_color
 
 
+def load_texture():
+    return rl.load_texture("images/texture_videl.png")
+
+
+
 def draw_highlight(x, y, tile_size, piece=None):
     cx = x * tile_size + tile_size // 2
     cy = y * tile_size + tile_size // 2
@@ -35,15 +40,9 @@ def draw_highlight(x, y, tile_size, piece=None):
 
     if piece is None:
         # ✅ Подсветка пустой клетки — маленький кружок
-        rl.draw_circle(cx, cy, tile_size // 5.5, rl.Color(0, 255, 0, 120))
+        rl.draw_circle(cx, cy, tile_size // 5.5, rl.Color(129, 151, 105, 255)) # rgb(129, 151, 105)
     else:
-        # ✅ Подсветка занятой клетки — рамка по краям.
-        # рисуем зелёный полупрозрачный квадрат
-        rl.draw_rectangle(left, top, tile_size, tile_size, rl.Color(0, 255, 0, 100))
-
-        # Вырезаем центр, закрашивая цветом клетки
-        base_color = get_tile_color(x, y)  # например, светлая/тёмная клетка
-        rl.draw_circle(cx, cy, tile_size // 1.95, base_color)
+        rl.draw_texture(load_texture(), x * tile_size, y *  tile_size, rl.WHITE)
 
 
 class Game:
@@ -108,6 +107,7 @@ class Game:
         if self.mouse_first_right_click:
             if self.ri["status"] in (MoveStatus.SELECTED, MoveStatus.WRONG_TURN):
                 for (x, y) in self.ri["moves"]:
+
                     piece = self.chessboard.get_chessboard()[y][x]
                     draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
 
@@ -137,6 +137,7 @@ class Game:
         # Загружаем текстуры
         self.creating_white_figures()
         self.creating_black_figures()
+
 
 
     def creating_black_figures(self):
@@ -318,6 +319,7 @@ class Game:
         # Второй клик: попытка сделать ход
         return self._handle_second_click(new_x, new_y)
 
+
     def _handle_first_click(self, piece, x, y):
         if piece == 0:
             return _make_response(MoveStatus.EMPTY, None, rl.RED)
@@ -328,7 +330,15 @@ class Game:
         # Всё ок — выбираем фигуру
         self.mouse_first_right_click = True
         self.old_x, self.old_y = x, y
-        return _make_response(MoveStatus.SELECTED, piece.draw_move(), rl.GREEN)
+
+        war_moves: list = []
+
+        for (new_x, new_y) in piece.draw_move():
+            if self.chessboard.redact_board_move(simulate=True, old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y)):
+                war_moves.append((new_x, new_y))
+
+
+        return _make_response(MoveStatus.SELECTED, war_moves, rl.GREEN)
 
 
     def _handle_second_click(self, new_x, new_y):
@@ -366,7 +376,7 @@ class Game:
             self.motion = "black" if self.motion == "white" else "white"
             return _make_response(MoveStatus.MOVED, None, rl.RED)
 
-        # ❌ Ошибка хода → снимаем выделение
+
         self.mouse_first_right_click = False
         return _make_response(MoveStatus.ERROR, None, rl.RED)
 

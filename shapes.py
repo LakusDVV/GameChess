@@ -15,6 +15,13 @@ class Figure:
         self.cord = cord
         self.first_move = True
 
+    def get_cord(self):
+        return self.cord
+
+
+    def get_color(self):
+        return self.color
+
 
     def draw(self):
         x, y = self.cord
@@ -70,11 +77,11 @@ class Pawn(Figure):
 
         :return: None
         """
-        # 1 шаг вперёд
+        # one move forward
         if in_bounds(x, y + direction) and board[y + direction][x] == 0:
             moves.append((x, y + direction))
 
-            # 2 шага вперёд, если первый ход
+            # two moves forward, if the first move
             if self.first_move and in_bounds(x, y + 2 * direction) and board[y + 2 * direction][x] == 0:
                 moves.append((x, y + 2 * direction))
         return
@@ -134,8 +141,7 @@ class King(Figure):
 
 
 
-    def get_cord(self):
-        return self.cord
+
 
 
     def __str__(self):
