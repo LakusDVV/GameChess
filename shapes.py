@@ -1,6 +1,7 @@
 import raylibpy as rl
 
 
+
 def in_bounds(x, y):
     return 0 <= x < 8 and 0 <= y < 8
 
@@ -123,6 +124,17 @@ class King(Figure):
             elif piece.color != self.color:  # враг
                 moves.append((nx, ny))
 
+        if self.first_move:
+            _bord = self.board.get_chessboard()
+            for ix in range(x-3, x+2+1):
+                if not _bord[y][ix]:
+                    break
+            else:
+                for stat in (-4, 3):
+                    target_rook = _bord[y][x + stat]
+                    if isinstance(target_rook, Rook):
+                        if target_rook.first_move:
+                            moves.append((x + 2 if stat == 3 else -2, y))
         return moves
 
 

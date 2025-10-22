@@ -6,6 +6,27 @@ from board import Chessboard
 from enum import Enum
 
 
+class TextureManager:
+    def __init__(self):
+        self.textures = {
+            "black_king_texture"    :   rl.load_texture("images/black_king.png"),
+            "black_queen_texture"   :   rl.load_texture("images/black_queen.png"),
+            "black_rook_texture"    :   rl.load_texture("images/black_rook.png"),
+            "black_bishop_texture"  :   rl.load_texture("images/black_bishop.png"),
+            "black_knight_texture"  :   rl.load_texture("images/black_knight.png"),
+            "black_pawn_texture"    :   rl.load_texture("images/black_pawn.png"),
+            "white_king_texture"    :   rl.load_texture("images/white_king.png"),
+            "white_queen_texture"   :   rl.load_texture("images/white_queen.png"),
+            "white_rook_texture"    :   rl.load_texture("images/white_rook.png"),
+            "white_bishop_texture"  :   rl.load_texture("images/white_bishop.png"),
+            "white_knight_texture"  :   rl.load_texture("images/white_knight.png"),
+            "white_pawn_texture"    :   rl.load_texture("images/white_pawn.png"),
+            "highlighting_texture"  :   rl.load_texture("images/highlighting_texture.png")
+        }
+
+    def get_texture(self, name):
+        return self.textures[name]
+
 class MoveStatus(Enum):
     EMPTY = 0         # кликнули по пустой клетке
     MOVED = 1         # успешный ход
@@ -27,12 +48,9 @@ def get_tile_color(x, y):
     return dark_color if (x + y) % 2 == 0 else light_color
 
 
-def load_texture():
-    return rl.load_texture("images/texture_videl.png")
 
 
-
-def draw_highlight(x, y, tile_size, piece=None):
+def draw_highlight(TM, x, y, tile_size, piece=None):
     cx = x * tile_size + tile_size // 2
     cy = y * tile_size + tile_size // 2
     left = x * tile_size
@@ -42,7 +60,7 @@ def draw_highlight(x, y, tile_size, piece=None):
         # ✅ Подсветка пустой клетки — маленький кружок
         rl.draw_circle(cx, cy, tile_size // 5.5, rl.Color(129, 151, 105, 255)) # rgb(129, 151, 105)
     else:
-        rl.draw_texture(load_texture(), x * tile_size, y *  tile_size, rl.WHITE)
+        rl.draw_texture(TM.get_texture("highlighting_texture"), x * tile_size, y *  tile_size, rl.WHITE)
 
 
 class Game:
@@ -50,7 +68,15 @@ class Game:
         self.rows = rows
         self.cols = cols
         self.tile_size = tile_size
+        width = self.cols * self.tile_size
+        height = self.rows * self.tile_size
+
+        rl.init_window(width, height, "Chess")
+        rl.set_target_fps(60)
+
+
         self.chessboard = Chessboard()
+        self.TM = TextureManager()
         self.old_x, self.old_y = None, None
         self.mouse_first_right_click = False
         self.ri = {"status": 0, "moves": []}
@@ -59,10 +85,8 @@ class Game:
         self.motion = "white"   # белые начинают партию
         self.color_motion = {"black": 0, "white": 1}
 
-        width = self.chessboard.cols * self.chessboard.tile_size
-        height = self.chessboard.rows * self.chessboard.tile_size
-        rl.init_window(width, height, "Chess")
-        rl.set_target_fps(60)
+
+
         self.white_king = None
         self.black_king = None
         self.creating_figures()
@@ -109,7 +133,7 @@ class Game:
                 for (x, y) in self.ri["moves"]:
 
                     piece = self.chessboard.get_chessboard()[y][x]
-                    draw_highlight(x, y, self.tile_size, piece if piece != 0 else None)
+                    draw_highlight(TM=self.TM, x=x, y=y, tile_size=self.tile_size, piece=piece if piece != 0 else None)
 
         wx, wy = self.chessboard.find_king("white")
         if self.chessboard.get_chessboard()[wy][wx].is_in_check(figures=self.chessboard.figures):
@@ -139,14 +163,13 @@ class Game:
         self.creating_black_figures()
 
 
-
     def creating_black_figures(self):
-        black_king_texture = rl.load_texture("images/black_king.png")
-        black_queen_texture = rl.load_texture("images/black_queen.png")
-        black_rook_texture = rl.load_texture("images/black_rook.png")
-        black_bishop_texture = rl.load_texture("images/black_bishop.png")
-        black_knight_texture = rl.load_texture("images/black_knight.png")
-        black_pawn_texture = rl.load_texture("images/black_pawn.png")
+        black_king_texture   = self.TM.get_texture("black_king_texture")
+        black_queen_texture  = self.TM.get_texture("black_queen_texture")
+        black_rook_texture   = self.TM.get_texture("black_rook_texture")
+        black_bishop_texture = self.TM.get_texture("black_bishop_texture")
+        black_knight_texture = self.TM.get_texture("black_knight_texture")
+        black_pawn_texture   = self.TM.get_texture("black_pawn_texture")
 
         black_king = s.King(
             color="black",
@@ -223,12 +246,12 @@ class Game:
 
 
     def creating_white_figures(self):
-        white_king_texture = rl.load_texture("images/white_king.png")
-        white_queen_texture = rl.load_texture("images/white_queen.png")
-        white_rook_texture = rl.load_texture("images/white_rook.png")
-        white_bishop_texture = rl.load_texture("images/white_bishop.png")
-        white_knight_texture = rl.load_texture("images/white_knight.png")
-        white_pawn_texture = rl.load_texture("images/white_pawn.png")
+        white_king_texture   = self.TM.get_texture("white_king_texture")
+        white_queen_texture  = self.TM.get_texture("white_queen_texture")
+        white_rook_texture   = self.TM.get_texture("white_rook_texture")
+        white_bishop_texture = self.TM.get_texture("white_bishop_texture")
+        white_knight_texture = self.TM.get_texture("white_knight_texture")
+        white_pawn_texture   = self.TM.get_texture("white_pawn_texture")
 
         white_king = s.King(
             color="white",
@@ -353,8 +376,7 @@ class Game:
 
         # 🎯 Если кликнули на свою другую фигуру → переназначаем выбор
         if target != 0 and target.color == self.motion:
-            self.old_x, self.old_y = new_x, new_y
-            return _make_response(MoveStatus.SELECTED, target.draw_move(), rl.GREEN)
+            return self._handle_first_click(target, new_x, new_y)
 
         # ❌ Если клетка не входит в доступные ходы → снимаем выбор
         if (new_x, new_y) not in moves:

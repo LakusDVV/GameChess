@@ -1,10 +1,10 @@
 import raylibpy as rl
-from shapes import King
+from shapes import King, Figure, Rook
 
 def get_tile_color(x, y):
     light_color = rl.Color(240, 217, 181, 255)
     dark_color = rl.Color(181, 136, 99, 255)
-    return dark_color if (x + y) % 2 == 0 else light_color
+    return light_color if (x + y) % 2 == 0 else dark_color
 
 
 
@@ -66,15 +66,27 @@ class Chessboard:
         self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = piece, 0
         piece.cord = (new_x, new_y)
 
-        if isinstance(piece, King):
-            in_check = piece.is_in_check(figures=self.figures)
+        is_king = isinstance(piece, King)
 
+        if is_king:
+            in_check = piece.is_in_check(figures=self.figures)
         else:
-            k = self.find_and_return_king(color=piece.get_color())
+            k: King = self.find_and_return_king(color=piece.get_color())
             if k:
                 in_check = k.is_in_check(figures=self.figures)
             else:
                 in_check = False
+
+        # рокировка - это просто 3.1415926535 просто не спрашивайте как я это сделал, оно все равно не работает
+        step = 1 if new_x > old_x else -1
+        if is_king and abs(old_x - new_x) == 2:
+
+            for ix in range(old_x, new_x + step):
+                if not self.redact_board_move(simulate=True, old_cord=old_cord, new_cord=(ix, old_y,)):
+                    break
+            else:
+                (self.chessboard[old_y][old_x + (4 if step == 1 else -5)],
+                 self.chessboard[new_y + step][new_x + step]) = 0, target
 
         # Если поле хода, король под шахом, то откат
         if in_check:
