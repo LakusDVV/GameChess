@@ -124,17 +124,42 @@ class King(Figure):
             elif piece.color != self.color:  # враг
                 moves.append((nx, ny))
 
+        # if self.first_move:
+        #     _bord = self.board.get_chessboard()
+        #     for ix in range(x-3, x+2+1):
+        #         if not _bord[y][ix]:
+        #             break
+        #     else:
+        #         for stat in (-4, 3):
+        #             target_rook = _bord[y][x + stat]
+        #             if isinstance(target_rook, Rook):
+        #                 if target_rook.first_move:
+        #                     moves.append((x + 2 if stat == 3 else -2, y))
+
         if self.first_move:
-            _bord = self.board.get_chessboard()
-            for ix in range(x-3, x+2+1):
-                if not _bord[y][ix]:
-                    break
-            else:
-                for stat in (-4, 3):
-                    target_rook = _bord[y][x + stat]
-                    if isinstance(target_rook, Rook):
-                        if target_rook.first_move:
-                            moves.append((x + 2 if stat == 3 else -2, y))
+            board = self.board.get_chessboard()
+            width = len(board[0])
+            for stat in (-4, 3):  # -4 = ферзь. сторона, 3 = королевская сторона
+                rook_x = x + stat
+                # границы доски
+                if not (0 <= rook_x < width):
+                    continue
+
+                # все клетки между королём и ладьёй должны быть пустыми
+                left = min(x, rook_x) + 1
+                right = max(x, rook_x)  # exclusive
+                blocked = False
+                for ix in range(left, right):
+                    if board[y][ix]:
+                        blocked = True
+                        break
+                if blocked:
+                    continue
+
+                target_rook = board[y][rook_x]
+                if isinstance(target_rook, Rook) and target_rook.first_move:
+                    dest_x = x + 2 if stat == 3 else x - 2
+                    moves.append((dest_x, y))
         return moves
 
 
@@ -150,10 +175,6 @@ class King(Figure):
             if self.cord in x.get_attack_moves():
                 return True
         return False
-
-
-
-
 
 
     def __str__(self):

@@ -1,13 +1,13 @@
 import raylibpy as rl
 from shapes import King, Figure, Rook
+import copy
+
+
 
 def get_tile_color(x, y):
     light_color = rl.Color(240, 217, 181, 255)
     dark_color = rl.Color(181, 136, 99, 255)
     return light_color if (x + y) % 2 == 0 else dark_color
-
-
-
 
 
 class Chessboard:
@@ -32,11 +32,8 @@ class Chessboard:
 
 
     def draw_pieces(self):
-        for y in range(self.rows):
-            for x in range(self.cols):
-                piece = self.chessboard[y][x]
-                if piece != 0:
-                    piece.draw()
+        for piece in self.figures:
+            piece.draw()
 
 
     def get_chessboard(self):
@@ -54,63 +51,124 @@ class Chessboard:
         else:
             return 0
 
-    def redact_board_move(self, *, new_cord, old_cord, simulate = False):
+
+    def redact_board_move(self, *, new_cord, old_cord, simulate=False, _board=None, _figures=None):
         old_x, old_y = old_cord
         new_x, new_y = new_cord
 
+        # Нельзя ходить в ту же клетку
         if (new_x, new_y) == (old_x, old_y):
             return False
 
-        piece = self.chessboard[old_y][old_x]
-        target = self.chessboard[new_y][new_x]
-        self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = piece, 0
-        piece.cord = (new_x, new_y)
+
+        board = _board if copy.deepcopy(_board) is not None else self.chessboard
+        figures = _figures if copy.deepcopy(_figures) is not None else self.figures
+
+        piece = board[old_y][old_x]
+        target = board[new_y][new_x]
+
+        # Перемещаем фигуру в копии доски
+
+
+        if not piece:
+            return False
+
+        original_board = copy.deepcopy(board)
+        original_figures = copy.deepcopy(figures)
+
+        board[new_y][new_x], board[old_y][old_x] = piece, 0
+
+        if not simulate:
+            piece.cord = (new_x, new_y)
 
         is_king = isinstance(piece, King)
 
+        # Проверка шаха
         if is_king:
-            in_check = piece.is_in_check(figures=self.figures)
+            in_check = piece.is_in_check(figures=figures)
         else:
             k: King = self.find_and_return_king(color=piece.get_color())
-            if k:
-                in_check = k.is_in_check(figures=self.figures)
-            else:
-                in_check = False
+            in_check = k.is_in_check(figures=figures) if k else False
 
-        # рокировка - это просто 3.1415926535 просто не спрашивайте как я это сделал, оно все равно не работает
-        step = 1 if new_x > old_x else -1
-        if is_king and abs(old_x - new_x) == 2:
+        # --- Проверка рокировки ---
+        if is_king and abs(old_x - new_x) == 2 and not simulate:
+            step = 1 if new_x > old_x else -1
+            sx = range(old_x + step, new_x + step, step)
 
-            for ix in range(old_x, new_x + step):
-                if not self.redact_board_move(simulate=True, old_cord=old_cord, new_cord=(ix, old_y,)):
-                    break
-            else:
-                (self.chessboard[old_y][old_x + (4 if step == 1 else -5)],
-                 self.chessboard[new_y + step][new_x + step]) = 0, target
+            # Проверяем, не под шахом ли путь
+            for ix in sx:
 
-        # Если поле хода, король под шахом, то откат
-        if in_check:
-            self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
-            piece.cord = (old_x, old_y)
-            return False
+                snapshot_board = copy.deepcopy(original_board)
+                snapshot_figures = copy.deepcopy(original_figures)
 
-        # Если симулируем - откатываем все назад
-        if simulate:
-            self.chessboard[new_y][new_x], self.chessboard[old_y][old_x] = target, piece
-            piece.cord = (old_x, old_y)
+                ok = self.redact_board_move(
+                    simulate=True,
+                    old_cord=old_cord,
+                    new_cord=(ix, old_y),
+                    _board=snapshot_board,
+                    _figures=snapshot_figures
+                )
+
+                if not ok:
+                    if _board is None:
+                        self.chessboard = original_board
+                    return False
+
+            rook_old_x = 7 if step == 1 else 0
+            rook_new_x = new_x - step
+
+            rook_piece = board[old_y][rook_old_x]
+            board[old_y][rook_old_x] = 0
+            board[old_y][rook_new_x] = rook_piece
+
+            if not simulate:
+                # обновляем координаты реальных объектов
+                rook_piece.cord = (rook_new_x, old_y)
+                piece.cord = (new_x, new_y)
+                piece.first_move = False
+
+            # если работаем на реальной доске, сохранить изменения в self
+            if _board is None:
+                self.chessboard = board
+                self.update_sync_figures()
+
             return True
 
+        # --- Если шах, откат хода ---
+        if in_check:
+            # откатить рабочую доску
+            if _board is None:
+                # откатываем self.chessboard до original_board
+                self.chessboard = original_board
+                # не меняем реальные атрибуты piece.cord потому что мы их не трогали в simulate
+            else:
+                # если работаем на переданной доске, просто вернуть False — вызывающий код это учтёт
+                pass
+            return False
+
+        # --- Если симуляция, просто вернуть результат ---
+        if simulate:
+            # не изменяем реальные объекты; если board == self.chessboard, откатим
+            if _board is None:
+                self.chessboard = original_board
+            return True
 
         piece.cord = (new_x, new_y)
         piece.first_move = False
-
         if target:
-            self.figures.remove(target)
+            if target in self.figures:
+                self.figures.remove(target)
 
+        # если работали с локальной копией (иначе board == self.chessboard уже и так)
+        if _board is not None:
+            # если кто-то передал _board — это внутренний вызов, не коммитим в self
+            return True
+
+        # зафиксировать изменения в self
+        self.chessboard = board
+        self.figures = figures
+        self.update_sync_figures()
         return True
-
-
-
 
 
     def find_king(self, color):
@@ -118,6 +176,13 @@ class Chessboard:
             if x.color == color and isinstance(x, King):
                 return x.get_cord()
         return None
+
+    def update_sync_figures(self):
+        self.figures = []
+        for row in self.chessboard:
+            for piece in row:
+                if piece:
+                    self.figures.append(piece)
 
 
     def find_and_return_king(self, color):

@@ -91,6 +91,14 @@ class Game:
         self.black_king = None
         self.creating_figures()
 
+        self._dick = {
+            MoveStatus.MOVED: "Second click, move is successful",
+            MoveStatus.ERROR: "Error",
+            MoveStatus.SELECTED: "First click: piece selected",
+            MoveStatus.WRONG_TURN: "First click: wrong turn",
+            MoveStatus.EMPTY: "Clicked empty cell"
+
+        }
 
     def run(self):
         while not rl.window_should_close():
@@ -101,21 +109,14 @@ class Game:
 
     def update(self):
         mouse_x = rl.get_mouse_x()
-        mouse_y = rl.get_mouse_y()\
+        mouse_y = rl.get_mouse_y()
 
-        _dick = {
-            MoveStatus.MOVED: "Second click, move is successful",
-            MoveStatus.ERROR: "Error",
-            MoveStatus.SELECTED: "First click: piece selected",
-            MoveStatus.WRONG_TURN: "First click: wrong turn",
-            MoveStatus.EMPTY: "Clicked empty cell"
 
-        }
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             self.ri = self.mouse_right_button(mouse_x, mouse_y)
 
-            print(_dick[self.ri["status"]])
+            print(self._dick[self.ri["status"]])
 
             self.print_chessboard()
 
@@ -263,45 +264,45 @@ class Game:
         else: print("Клетка занята")
 
 
-        white_queen = s.Queen(
-            color="white",
-            texture=white_queen_texture,
-            board=self.chessboard
-        )
-        if self.chessboard.redact_board_add(element=white_queen, cord=self.convert_board("d1")):
-            print("Фигура установлена")
-        else: print("Клетка занята")
-
-
-        white_bishop = s.Bishop(
-            color="white",
-            texture=white_bishop_texture,
-            board=self.chessboard
-        )
-        copy_white_bishop = copy.deepcopy(white_bishop)
-        if self.chessboard.redact_board_add(element=white_bishop, cord=self.convert_board("c1")):
-            print("Фигура установлена")
-        else:
-            print("Клетка занята")
-
-        if self.chessboard.redact_board_add(element=copy_white_bishop, cord=self.convert_board("f1")):
-            print("Фигура установлена")
-        else:
-            print("Клетка занята")
-
-
-        white_knight = s.Knight(
-            color="white",
-            texture=white_knight_texture,
-            board=self.chessboard
-        )
-        copy_white_knight = copy.deepcopy(white_knight)
-        if self.chessboard.redact_board_add(element=white_knight, cord=self.convert_board("b1")):
-            print("Фигура установлена")
-        else: print("Клетка занята")
-        if self.chessboard.redact_board_add(element=copy_white_knight, cord=self.convert_board("g1")):
-            print("Фигура установлена")
-        else: print("Клетка занята")
+        # white_queen = s.Queen(
+        #     color="white",
+        #     texture=white_queen_texture,
+        #     board=self.chessboard
+        # )
+        # if self.chessboard.redact_board_add(element=white_queen, cord=self.convert_board("d1")):
+        #     print("Фигура установлена")
+        # else: print("Клетка занята")
+        #
+        #
+        # white_bishop = s.Bishop(
+        #     color="white",
+        #     texture=white_bishop_texture,
+        #     board=self.chessboard
+        # )
+        # copy_white_bishop = copy.deepcopy(white_bishop)
+        # if self.chessboard.redact_board_add(element=white_bishop, cord=self.convert_board("c1")):
+        #     print("Фигура установлена")
+        # else:
+        #     print("Клетка занята")
+        #
+        # if self.chessboard.redact_board_add(element=copy_white_bishop, cord=self.convert_board("f1")):
+        #     print("Фигура установлена")
+        # else:
+        #     print("Клетка занята")
+        #
+        #
+        # white_knight = s.Knight(
+        #     color="white",
+        #     texture=white_knight_texture,
+        #     board=self.chessboard
+        # )
+        # copy_white_knight = copy.deepcopy(white_knight)
+        # if self.chessboard.redact_board_add(element=white_knight, cord=self.convert_board("b1")):
+        #     print("Фигура установлена")
+        # else: print("Клетка занята")
+        # if self.chessboard.redact_board_add(element=copy_white_knight, cord=self.convert_board("g1")):
+        #     print("Фигура установлена")
+        # else: print("Клетка занята")
 
         white_rook = s.Rook(
             color="white",
@@ -344,8 +345,10 @@ class Game:
 
 
     def _handle_first_click(self, piece, x, y):
+
         if piece == 0:
             return _make_response(MoveStatus.EMPTY, None, rl.RED)
+
 
         if piece.color != self.motion:  # ❌ не тот цвет хода
             return _make_response(MoveStatus.WRONG_TURN, piece.draw_move(), rl.BLUE)
@@ -354,9 +357,10 @@ class Game:
         self.mouse_first_right_click = True
         self.old_x, self.old_y = x, y
 
+        dm = piece.draw_move()
         war_moves: list = []
 
-        for (new_x, new_y) in piece.draw_move():
+        for (new_x, new_y) in dm:
             if self.chessboard.redact_board_move(simulate=True, old_cord=(self.old_x, self.old_y), new_cord=(new_x, new_y)):
                 war_moves.append((new_x, new_y))
 
@@ -402,6 +406,7 @@ class Game:
         self.mouse_first_right_click = False
         return _make_response(MoveStatus.ERROR, None, rl.RED)
 
+
     def initialize_convert_board(self):
         y = [str(i) for i in range(self.cols - 1, -1, -1)]
         # self.y = [str(i) for i in range(self.line)]
@@ -422,14 +427,13 @@ class Game:
         return self.chessboard_chess_cords_to_array[y][x]
 
 
-    def implementing_sequence_of_moves(self):
-        pass
-
-
     def print_chessboard(self):
         for i in self.chessboard.get_chessboard():
             for j in i:
-                print(j, end=" ")
+                if j:
+                    print(f"{j}", end=" ")
+                else:
+                    print(f"{j}", end=" ")
             print()
         print()
 
