@@ -76,6 +76,10 @@ class Chessboard:
         original_board = copy.deepcopy(board)
         original_figures = copy.deepcopy(figures)
 
+        for f in figures:
+            f.board = board
+
+
         board[new_y][new_x], board[old_y][old_x] = piece, 0
 
         if not simulate:
@@ -87,7 +91,7 @@ class Chessboard:
         if is_king:
             in_check = piece.is_in_check(figures=figures)
         else:
-            k: King = self.find_and_return_king(color=piece.get_color())
+            k: King = self.find_and_return_king(color=piece.get_color(), board=board, figures=figures)
             in_check = k.is_in_check(figures=figures) if k else False
 
         # --- Проверка рокировки ---
@@ -112,6 +116,7 @@ class Chessboard:
                 if not ok:
                     if _board is None:
                         self.chessboard = original_board
+                        piece.board = original_board
                     return False
 
             rook_old_x = 7 if step == 1 else 0
@@ -125,12 +130,15 @@ class Chessboard:
                 # обновляем координаты реальных объектов
                 rook_piece.cord = (rook_new_x, old_y)
                 piece.cord = (new_x, new_y)
+                piece.board = original_board
+                rook_piece.board = original_board
                 piece.first_move = False
 
             # если работаем на реальной доске, сохранить изменения в self
             if _board is None:
                 self.chessboard = board
                 self.update_sync_figures()
+                piece.board = original_board
 
             return True
 
@@ -140,6 +148,7 @@ class Chessboard:
             if _board is None:
                 # откатываем self.chessboard до original_board
                 self.chessboard = original_board
+                piece.board = self
                 # не меняем реальные атрибуты piece.cord потому что мы их не трогали в simulate
             else:
                 # если работаем на переданной доске, просто вернуть False — вызывающий код это учтёт
@@ -151,6 +160,7 @@ class Chessboard:
             # не изменяем реальные объекты; если board == self.chessboard, откатим
             if _board is None:
                 self.chessboard = original_board
+                piece.board = self
             return True
 
         piece.cord = (new_x, new_y)
@@ -168,14 +178,18 @@ class Chessboard:
         self.chessboard = board
         self.figures = figures
         self.update_sync_figures()
+        piece.board = self
         return True
 
 
-    def find_king(self, color):
-        for x in self.figures:
+    def find_king(self, color, figures = None):
+        if figures is None:
+            figures = self.figures
+        for x in figures:
             if x.color == color and isinstance(x, King):
                 return x.get_cord()
         return None
+
 
     def update_sync_figures(self):
         self.figures = []
@@ -185,6 +199,10 @@ class Chessboard:
                     self.figures.append(piece)
 
 
-    def find_and_return_king(self, color):
-        x, y = self.find_king(color=color)
-        return self.chessboard[y][x]
+    def find_and_return_king(self, *, color, board = None, figures = None):
+        if figures is None:
+            figures = self.figures
+        if board is None:
+            board = self.chessboard
+        x, y = self.find_king(color=color, figures=figures)
+        return board[y][x]

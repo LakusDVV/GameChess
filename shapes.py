@@ -35,7 +35,13 @@ class Pawn(Figure):
     def draw_move(self):
         moves = []
         x, y = self.cord
-        board = self.board.get_chessboard()
+
+        is_l = isinstance(self.board, list)
+        if is_l:
+            board = self.board
+        else:
+            board = self.board.get_chessboard()
+
 
         # Направление движения зависит от цвета
         direction = -1 if self.color == "white" else 1
@@ -54,7 +60,11 @@ class Pawn(Figure):
 
         moves = []
         x, y = self.cord
-        board = self.board.get_chessboard()
+        is_l = isinstance(self.board, list)
+        if is_l:
+            board = self.board
+        else:
+            board = self.board.get_chessboard()
 
         # Направление движения зависит от цвета
         direction = -1 if self.color == "white" else 1
@@ -111,33 +121,30 @@ class King(Figure):
         deltas = [(-1, 0), (1, 0), (0, -1), (0, 1),
                   (-1, -1), (-1, 1), (1, -1), (1, 1)]
         moves = []
+        is_l = isinstance(self.board, list)
+
         x, y = self.cord
         for dy, dx in deltas:
             ny, nx = y + dy, x + dx
             if not in_bounds(ny, nx):
                 continue
 
-            piece = self.board.get_chessboard()[ny][nx]
+            if is_l:
+                piece = self.board[ny][ny]
+            else:
+                piece = self.board.get_chessboard()[ny][nx]
 
             if piece == 0:  # пустая клетка
                 moves.append((nx, ny))
             elif piece.color != self.color:  # враг
                 moves.append((nx, ny))
 
-        # if self.first_move:
-        #     _bord = self.board.get_chessboard()
-        #     for ix in range(x-3, x+2+1):
-        #         if not _bord[y][ix]:
-        #             break
-        #     else:
-        #         for stat in (-4, 3):
-        #             target_rook = _bord[y][x + stat]
-        #             if isinstance(target_rook, Rook):
-        #                 if target_rook.first_move:
-        #                     moves.append((x + 2 if stat == 3 else -2, y))
 
         if self.first_move:
-            board = self.board.get_chessboard()
+            if is_l:
+                board = self.board
+            else:
+                board = self.board.get_chessboard()
             width = len(board[0])
             for stat in (-4, 3):  # -4 = ферзь. сторона, 3 = королевская сторона
                 rook_x = x + stat
@@ -188,6 +195,7 @@ class Rook(Figure):
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
         x, y = self.cord
+        is_l = isinstance(self.board, list)
 
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
@@ -204,7 +212,10 @@ class Rook(Figure):
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ty][tx]
+                if is_l:
+                    piece = self.board[ny][ny]
+                else:
+                    piece = self.board.get_chessboard()[ny][nx]
 
                 if piece == 0:  # пустая клетка
                     moves.append((tx, ty))
@@ -235,6 +246,7 @@ class Bishop(Figure):
         directions = [(1,1), (-1,-1), (-1, 1), (1,-1)]
 
         x, y = self.cord
+        is_l = isinstance(self.board, list)
 
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
@@ -250,7 +262,10 @@ class Bishop(Figure):
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ty][tx]
+                if is_l:
+                    piece = self.board[ny][ny]
+                else:
+                    piece = self.board.get_chessboard()[ny][nx]
 
                 if piece == 0:  # пустая клетка
                     moves.append((tx, ty))
@@ -283,6 +298,7 @@ class Knight(Figure):
         moves = []
 
         x, y = self.cord
+        is_l = isinstance(self.board, list)
 
         for dy, dx in deltas:
             ny, nx = y + dy, x + dx
@@ -290,7 +306,10 @@ class Knight(Figure):
             if not in_bounds(ny, nx):
                 continue
 
-            piece = self.board.get_chessboard()[ny][nx]
+            if is_l:
+                piece = self.board[ny][ny]
+            else:
+                piece = self.board.get_chessboard()[ny][nx]
 
             if piece == 0:  # пустая клетка
                 moves.append((nx, ny))
@@ -322,6 +341,7 @@ class Queen(Figure):
                   (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
         x, y = self.cord
+        is_l = isinstance(self.board, list)
 
         for dx, dy in directions:
             ny, nx = y + dy, x + dx
@@ -338,7 +358,10 @@ class Queen(Figure):
                 if not in_bounds(tx, ty):  # проверка выхода за границы
                     break
 
-                piece = self.board.get_chessboard()[ty][tx]
+                if is_l:
+                    piece = self.board[ny][ny]
+                else:
+                    piece = self.board.get_chessboard()[ny][nx]
 
                 if piece == 0:  # пустая клетка
                     moves.append((tx, ty))
