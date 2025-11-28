@@ -191,6 +191,7 @@ class Chessboard:
         return None
 
 
+
     def update_sync_figures(self):
         self.figures = []
         for row in self.chessboard:
