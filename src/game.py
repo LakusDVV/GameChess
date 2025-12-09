@@ -4,19 +4,19 @@ from chessboard import ChessBoard
 class TextureManager:
     def __init__(self):
         self.textures = {
-            "black_king"    :   rl.load_texture("project/images/black_king.png"),
-            "black_queen"   :   rl.load_texture("project/images/black_queen.png"),
-            "black_rook"    :   rl.load_texture("project/images/black_rook.png"),
-            "black_bishop"  :   rl.load_texture("project/images/black_bishop.png"),
-            "black_knight"  :   rl.load_texture("project/images/black_knight.png"),
-            "black_pawn"    :   rl.load_texture("project/images/black_pawn.png"),
-            "white_king"    :   rl.load_texture("project/images/white_king.png"),
-            "white_queen"   :   rl.load_texture("project/images/white_queen.png"),
-            "white_rook"    :   rl.load_texture("project/images/white_rook.png"),
-            "white_bishop"  :   rl.load_texture("project/images/white_bishop.png"),
-            "white_knight"  :   rl.load_texture("project/images/white_knight.png"),
-            "white_pawn"    :   rl.load_texture("project/images/white_pawn.png"),
-            "highlighting"  :   rl.load_texture("project/images/highlighting_texture.png")
+            "black_king"    :   rl.load_texture("project/assets/images/black_king.png"),
+            "black_queen"   :   rl.load_texture("project/assets/images/black_queen.png"),
+            "black_rook"    :   rl.load_texture("project/assets/images/black_rook.png"),
+            "black_bishop"  :   rl.load_texture("project/assets/images/black_bishop.png"),
+            "black_knight"  :   rl.load_texture("project/assets/images/black_knight.png"),
+            "black_pawn"    :   rl.load_texture("project/assets/images/black_pawn.png"),
+            "white_king"    :   rl.load_texture("project/assets/images/white_king.png"),
+            "white_queen"   :   rl.load_texture("project/assets/images/white_queen.png"),
+            "white_rook"    :   rl.load_texture("project/assets/images/white_rook.png"),
+            "white_bishop"  :   rl.load_texture("project/assets/images/white_bishop.png"),
+            "white_knight"  :   rl.load_texture("project/assets/images/white_knight.png"),
+            "white_pawn"    :   rl.load_texture("project/assets/images/white_pawn.png"),
+            "highlighting"  :   rl.load_texture("project/assets/images/highlighting_texture.png")
         }
 
     def get_texture(self, name):
@@ -43,10 +43,6 @@ class Render:
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
 
 
-
-
-
-
     def get_tile_color(self, x: int, y: int) -> rl.Color:
         """
         Returns the color tile for the tile
@@ -68,7 +64,6 @@ class Render:
         self.draw_tiles()
 
         rl.end_drawing()
-
 
 
     def draw_tiles(self) -> None:
