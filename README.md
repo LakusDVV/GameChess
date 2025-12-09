@@ -1,9 +1,8 @@
 >Hi
-> 
-![Status](https://img.shields.io/badge/status-active-e)
 
+![Status](https://img.shields.io/badge/status-active-green)
 
-[Ссылка на сайт](https://example.com)
+[Ссылка на сайт](https://github.com/LakusDVV/GameChess)
 
 ![Название изображения](image.png)
 

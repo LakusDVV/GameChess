@@ -13,7 +13,11 @@ class ChessBoard:
 
 
 
-        self.chessboard = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
+        self.board = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
+
+
+    def get_board(self):
+        return self.board
 
 
 
