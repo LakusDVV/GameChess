@@ -20,5 +20,9 @@ class ChessBoard:
         return self.board
 
 
+    def add_figure(self, *, x, y, figure):
+        self.board[y][x] = figure
+
+
 
 

@@ -1,9 +1,12 @@
 import raylibpy as rl
 from chessboard import ChessBoard
+import shapes
+from src.shapes import PieceColor
+
 
 class TextureManager:
     def __init__(self):
-        self.textures = {
+        self._textures = {
             "black_king"    :   rl.load_texture("project/assets/images/black_king.png"),
             "black_queen"   :   rl.load_texture("project/assets/images/black_queen.png"),
             "black_rook"    :   rl.load_texture("project/assets/images/black_rook.png"),
@@ -20,7 +23,7 @@ class TextureManager:
         }
 
     def get_texture(self, name):
-        return self.textures[name]
+        return self._textures[name]
 
 
 class Render:
@@ -87,9 +90,25 @@ class Render:
 
 class Game:
     def __init__(self):
+        self.rows = 8
         self.texture_manager = TextureManager()
         self.chessboard = ChessBoard()
         self.render = Render(chessboard=self.chessboard)
+
+
+    def create_figures(self):
+        pass
+
+
+    def create_white_figures(self):
+        white_pawn_texture = self.texture_manager.get_texture("white_pawn")
+        for x in range(self.rows):
+            pawn = shapes.Pawn(x=x, y=1, texture=white_pawn_texture, color = PieceColor.WHITE)
+
+
+
+    def create_black_figures(self):
+        pass
 
 
     def run(self):
