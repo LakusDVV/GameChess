@@ -3,6 +3,8 @@ from enum import Enum
 
 
 
+
+
 class RenderComponent:
     def __init__(self, texture):
         self.texture = texture

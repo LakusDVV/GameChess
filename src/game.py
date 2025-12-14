@@ -2,25 +2,34 @@ import raylibpy as rl
 from chessboard import ChessBoard
 import shapes
 from src.shapes import PieceColor
+from src.enums import MoveResult
+import os
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
+IMAGES_DIR = os.path.join(ASSETS_DIR, "images")
 
 class TextureManager:
     def __init__(self):
-        self._textures = {
-            "black_king"    :   rl.load_texture("project/assets/images/black_king.png"),
-            "black_queen"   :   rl.load_texture("project/assets/images/black_queen.png"),
-            "black_rook"    :   rl.load_texture("project/assets/images/black_rook.png"),
-            "black_bishop"  :   rl.load_texture("project/assets/images/black_bishop.png"),
-            "black_knight"  :   rl.load_texture("project/assets/images/black_knight.png"),
-            "black_pawn"    :   rl.load_texture("project/assets/images/black_pawn.png"),
-            "white_king"    :   rl.load_texture("project/assets/images/white_king.png"),
-            "white_queen"   :   rl.load_texture("project/assets/images/white_queen.png"),
-            "white_rook"    :   rl.load_texture("project/assets/images/white_rook.png"),
-            "white_bishop"  :   rl.load_texture("project/assets/images/white_bishop.png"),
-            "white_knight"  :   rl.load_texture("project/assets/images/white_knight.png"),
-            "white_pawn"    :   rl.load_texture("project/assets/images/white_pawn.png"),
-            "highlighting"  :   rl.load_texture("project/assets/images/highlighting_texture.png")
-        }
+        self._textures = {}
+
+
+    def load_textures(self):
+        self._textures["black_king"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_king.png"))
+        self._textures["black_queen"]=      rl.load_texture(os.path.join(IMAGES_DIR, "black_queen.png"))
+        self._textures["black_rook"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_rook.png"))
+        self._textures["black_bishop"] =    rl.load_texture(os.path.join(IMAGES_DIR, "black_bishop.png"))
+        self._textures["black_knight"] =    rl.load_texture(os.path.join(IMAGES_DIR, "black_knight.png"))
+        self._textures["black_pawn"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_pawn.png"))
+        self._textures["white_king"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_king.png"))
+        self._textures["white_queen"] =     rl.load_texture(os.path.join(IMAGES_DIR, "white_queen.png"))
+        self._textures["white_rook"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_rook.png"))
+        self._textures["white_bishop"] =    rl.load_texture(os.path.join(IMAGES_DIR, "white_bishop.png"))
+        self._textures["white_knight"] =    rl.load_texture(os.path.join(IMAGES_DIR, "white_knight.png"))
+        self._textures["white_pawn"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_pawn.png"))
+        self._textures["highlighting"] =    rl.load_texture(os.path.join(IMAGES_DIR, "highlighting_texture.png"))
+
+
 
     def get_texture(self, name):
         return self._textures[name]
@@ -65,6 +74,7 @@ class Render:
         rl.clear_background(rl.RAYWHITE)
 
         self.draw_tiles()
+        self.draw_figures()
 
         rl.end_drawing()
 
@@ -86,24 +96,50 @@ class Render:
                 )
 
 
+    def draw_figures(self) -> None:
+
+        figures = self.chessboard.get_figures()
+
+        for fig in figures:
+            fig.draw()
+
+
 
 
 class Game:
     def __init__(self):
         self.rows = 8
-        self.texture_manager = TextureManager()
+
         self.chessboard = ChessBoard()
         self.render = Render(chessboard=self.chessboard)
+        self.texture_manager = TextureManager()
+        self.texture_manager.load_textures()
+
+        self.create_figures()
 
 
     def create_figures(self):
-        pass
+        self.create_white_figures()
 
 
     def create_white_figures(self):
         white_pawn_texture = self.texture_manager.get_texture("white_pawn")
+
         for x in range(self.rows):
             pawn = shapes.Pawn(x=x, y=1, texture=white_pawn_texture, color = PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=1, figure=pawn)
+
+            match status:
+                case MoveResult.OK:
+                    print(f"Figure added on {x} {1}")
+
+                case MoveResult.CELL_OCCUPIED:
+                    print("Cell is not empty")
+
+                case _:
+                    print("Unknown status")
+
+
 
 
 
