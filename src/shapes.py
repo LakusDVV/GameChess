@@ -25,6 +25,9 @@ class PieceColor(Enum):
 
 
 class Figure:
+
+    _deltas = None
+
     def __init__(self, *, x: int, y: int, color, texture, tile_size=70):
         self.cord = (x, y)
         self.tile_size = tile_size
@@ -34,6 +37,7 @@ class Figure:
         self.renderer =  RenderComponent(texture)
 
         self.first_move = True
+        self.direction = -1 if self.color == PieceColor.WHITE else 1
 
 
 
@@ -42,15 +46,61 @@ class Figure:
         self.renderer.draw(x=x, y=y, tile_size=self.tile_size)
 
 
+    def get_moves(self):
+        return self._deltas
+
+
 
 class Pawn(Figure):
+
     def get_moves(self):
-        direction = -1 if self.color == PieceColor.WHITE else 1
-
-        return direction
-
+        return self.direction
 
 
     def __str__(self):
         return "♙" if self.color == PieceColor.BLACK else "♟"
 
+
+
+class King(Figure):
+
+    _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+
+    def __str__(self):
+        return "♚" if self.color == "white" else "♔"
+
+
+
+class Queen(Figure):
+
+    _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+
+    def __str__(self):
+        return "♛" if self.color == "white" else "♕"
+
+
+class Rook(Figure):
+
+    _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+    def __str__(self):
+        return "♜" if self.color == "white" else "♖"
+
+
+class Bishop(Figure):
+
+    _deltas = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+
+    def __str__(self):
+        return "♝" if self.color == "white" else "♗"
+
+
+class Knight(Figure):
+    _deltas = [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
+
+    def __str__(self):
+        return "♞" if self.color == "white" else "♘"

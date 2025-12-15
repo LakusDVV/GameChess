@@ -123,21 +123,56 @@ class Game:
 
 
     def create_white_figures(self):
+
+        # Create king
+        white_king_texture = self.texture_manager.get_texture("white_king")
+        x, y = 3, 0
+        king = shapes.King(x=x, y=y, texture=white_king_texture, color = PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=king)
+        view_status_add_figure(status)
+
+        # Create queen
+        white_queen_texture = self.texture_manager.get_texture("white_queen")
+        x, y = 4, 0
+        queen = shapes.Queen(x=x, y=y, texture=white_queen_texture, color = PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
+        view_status_add_figure(status)
+
+        # Creates bishops
+        white_bishop_texture = self.texture_manager.get_texture("white_bishop")
+        x, y = None, 0
+        for x in (2, 5):
+            bishop = shapes.Bishop(x=x, y=y, texture=white_bishop_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
+            view_status_add_figure(status)
+
+        # Creates knights
+        white_knight_texture = self.texture_manager.get_texture("white_knight")
+        x, y = None, 0
+        for x in (1, 6):
+            knight = shapes.Knight(x=x, y=y, texture=white_knight_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
+            view_status_add_figure(status)
+
+        # Creates rooks
+        white_rook_texture = self.texture_manager.get_texture("white_rook")
+        x, y = None, 0
+        for x in (0, 7):
+            rook = shapes.Rook(x=x, y=y, texture=white_rook_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
+            view_status_add_figure(status)
+
+        # Creates pawns
         white_pawn_texture = self.texture_manager.get_texture("white_pawn")
-
+        x, y = None, 1
         for x in range(self.rows):
-            pawn = shapes.Pawn(x=x, y=1, texture=white_pawn_texture, color = PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=1, figure=pawn)
+            pawn = shapes.Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+            view_status_add_figure(status)
 
-            match status:
-                case MoveResult.OK:
-                    print(f"Figure added on {x} {1}")
 
-                case MoveResult.CELL_OCCUPIED:
-                    print("Cell is not empty")
 
-                case _:
-                    print("Unknown status")
+
 
 
 
@@ -152,3 +187,11 @@ class Game:
             self.render.draw()
 
         rl.close_window()
+
+
+def view_status_add_figure(status: MoveResult):
+    match status:
+        case MoveResult.OK:
+            print(f"Figure added")
+        case MoveResult.CELL_OCCUPIED:
+            print("Cell is not empty")
