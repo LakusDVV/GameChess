@@ -120,6 +120,7 @@ class Game:
 
     def create_figures(self):
         self.create_white_figures()
+        self.create_black_figures()
 
 
     def create_white_figures(self):
@@ -171,15 +172,60 @@ class Game:
             view_status_add_figure(status)
 
 
-
-
-
-
-
-
-
     def create_black_figures(self):
-        pass
+
+        # Create king
+        black_king_texture = self.texture_manager.get_texture("black_king")
+        x, y = 3, 7
+        king = shapes.King(x=x, y=y, texture=black_king_texture, color = PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=king)
+        view_status_add_figure(status)
+
+        # Create queen
+        black_queen_texture = self.texture_manager.get_texture("black_queen")
+        x, y = 4, 7
+        queen = shapes.Queen(x=x, y=y, texture=black_queen_texture, color = PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
+        view_status_add_figure(status)
+
+        # Creates bishops
+        black_bishop_texture = self.texture_manager.get_texture("black_bishop")
+        x, y = None, 7
+        for x in (2, 5):
+            bishop = shapes.Bishop(x=x, y=y, texture=black_bishop_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
+            view_status_add_figure(status)
+
+        # Creates knights
+        black_knight_texture = self.texture_manager.get_texture("black_knight")
+        x, y = None, 7
+        for x in (1, 6):
+            knight = shapes.Knight(x=x, y=y, texture=black_knight_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
+            view_status_add_figure(status)
+
+        # Creates rooks
+        black_rook_texture = self.texture_manager.get_texture("black_rook")
+        x, y = None, 7
+        for x in (0, 7):
+            rook = shapes.Rook(x=x, y=y, texture=black_rook_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
+            view_status_add_figure(status)
+
+        # Creates pawns
+        black_pawn_texture = self.texture_manager.get_texture("black_pawn")
+        x, y = None, 6
+        for x in range(self.rows):
+            pawn = shapes.Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+            view_status_add_figure(status)
+
+
+
+
+
+
+
 
 
     def run(self):
