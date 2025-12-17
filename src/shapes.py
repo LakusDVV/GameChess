@@ -1,6 +1,5 @@
 import raylibpy as rl
-from enum import Enum
-
+from enums import PieceColor
 
 
 
@@ -18,10 +17,6 @@ class RenderComponent:
             tint=   rl.WHITE
         )
 
-
-class PieceColor(Enum):
-    WHITE = 1,
-    BLACK = 2
 
 
 class Figure:

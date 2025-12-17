@@ -1,13 +1,14 @@
 import raylibpy as rl
 from chessboard import ChessBoard
 import shapes
-from src.shapes import PieceColor
-from src.enums import MoveResult
+from src.enums import MoveResult, PieceColor
 import os
+from paths import IMAGES_DIR
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
-IMAGES_DIR = os.path.join(ASSETS_DIR, "images")
+
+
+
+
 
 class TextureManager:
     def __init__(self):
@@ -15,20 +16,26 @@ class TextureManager:
 
 
     def load_textures(self):
-        self._textures["black_king"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_king.png"))
-        self._textures["black_queen"]=      rl.load_texture(os.path.join(IMAGES_DIR, "black_queen.png"))
-        self._textures["black_rook"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_rook.png"))
-        self._textures["black_bishop"] =    rl.load_texture(os.path.join(IMAGES_DIR, "black_bishop.png"))
-        self._textures["black_knight"] =    rl.load_texture(os.path.join(IMAGES_DIR, "black_knight.png"))
-        self._textures["black_pawn"] =      rl.load_texture(os.path.join(IMAGES_DIR, "black_pawn.png"))
-        self._textures["white_king"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_king.png"))
-        self._textures["white_queen"] =     rl.load_texture(os.path.join(IMAGES_DIR, "white_queen.png"))
-        self._textures["white_rook"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_rook.png"))
-        self._textures["white_bishop"] =    rl.load_texture(os.path.join(IMAGES_DIR, "white_bishop.png"))
-        self._textures["white_knight"] =    rl.load_texture(os.path.join(IMAGES_DIR, "white_knight.png"))
-        self._textures["white_pawn"] =      rl.load_texture(os.path.join(IMAGES_DIR, "white_pawn.png"))
-        self._textures["highlighting"] =    rl.load_texture(os.path.join(IMAGES_DIR, "highlighting_texture.png"))
+        self._load("black_king",    "black_king.png")
+        self._load("black_queen",   "black_queen.png")
+        self._load("black_rook",    "black_rook.png")
+        self._load("black_bishop",  "black_bishop.png")
+        self._load("black_knight",  "black_knight.png")
+        self._load("black_pawn",    "black_pawn.png")
+        self._load("white_king",    "white_king.png")
+        self._load("white_queen",   "white_queen.png")
+        self._load("white_rook",    "white_rook.png")
+        self._load("white_bishop",  "white_bishop.png")
+        self._load("white_knight",  "white_knight.png")
+        self._load("white_pawn",    "white_pawn.png")
+        self._load("highlighting",  "highlighting_texture.png")
 
+
+    def _load(self, key: str, filename: str):
+        path = os.path.join(IMAGES_DIR, filename)
+        texture = rl.load_texture(path)
+        assert texture.id != 0, f"Failed to load texture: {path}"
+        self._textures[key] = texture
 
 
     def get_texture(self, name):
@@ -108,7 +115,8 @@ class Render:
 
 class Game:
     def __init__(self):
-        self.rows = 8
+        self.rows, self.cols = 8, 8
+        self.tile_size = 70
 
         self.chessboard = ChessBoard()
         self.render = Render(chessboard=self.chessboard)
@@ -116,6 +124,23 @@ class Game:
         self.texture_manager.load_textures()
 
         self.create_figures()
+
+        self.mouse_first_right_click = False
+
+
+    def run(self):
+        while not rl.window_should_close():
+            self.render.draw()
+
+        rl.close_window()
+
+
+    def update(self):
+        mouse_x = rl.get_mouse_x()
+        mouse_y = rl.get_mouse_y()
+
+        if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
+            self.mouse_right_button(mouse_x, mouse_y)
 
 
     def create_figures(self):
@@ -221,6 +246,29 @@ class Game:
             view_status_add_figure(status)
 
 
+    def mouse_right_button(self, mouse_x, mouse_y):
+        board_x = mouse_x // self.tile_size
+        board_y = mouse_y // self.tile_size
+
+        board = self.chessboard.get_board()
+
+        piece = board[board_y][board_x]
+
+
+        if not self.mouse_first_right_click:
+            if piece:
+                self._first_click(piece=piece, board_x=board_x, board_y=board_y)
+
+
+    def _first_click(self, piece, board_x: int, board_y: int):
+        pass
+
+
+
+
+class MoveValidator:
+    def __init__(self):
+        pass
 
 
 
@@ -228,11 +276,6 @@ class Game:
 
 
 
-    def run(self):
-        while not rl.window_should_close():
-            self.render.draw()
-
-        rl.close_window()
 
 
 def view_status_add_figure(status: MoveResult):
