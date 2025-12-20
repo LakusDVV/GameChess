@@ -1,7 +1,7 @@
 <!-- Avatar which has linc to user profile -->
 <p align="center">                                         <!--p - paragraph (абзац) -->
   <a href="https://github.com/LakusDVV/">
-    <img src="https://github.com/LakusDVV.png" width="120" style="border-radius:50%;">
+    <img src="https://github.com/LakusDVV.png" width="120">
   </a>
 </p>
 
