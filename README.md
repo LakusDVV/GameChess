@@ -1,44 +1,26 @@
->Hi
+<!-- Avatar which has linc to user profile -->
+<p align="center">                                         <!--p - paragraph (абзац) -->
+  <a href="https://github.com/LakusDVV/">
+    <img src="https://github.com/LakusDVV.png" width="120" style="border-radius:50%;">
+  </a>
+</p>
 
-![Status](https://img.shields.io/badge/status-active-green)
+<!-- Project name which has linc to repository -->
+<h1 align="center">
+  <a href="https://github.com/LakusDVV/Mini-Chess-Game"> Mini-Chess Game </a>    
+</h1>
 
-[Ссылка на сайт](https://github.com/LakusDVV/GameChess)
-
-![Название изображения](image.png)
-
-dffsdfsf
-
-| Столбец 1 | Столбец 2 |
-|-----------|-----------|
-| Значение  | Значение  |
-
-
-```python
-print("Hello world")
-```
-
-
-
-1. Первый
-2. Второй
+<!-- Badge -->
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.12-blue?logo=python">
+  <img src="https://img.shields.io/badge/status-active-green">
+  <img src="https://img.shields.io/badge/raylib-5.5.0-black?logo=raylib">  
+</p>
 
 
-- Элемент
-
-* Элемент
----
-
-**Жирный**
-
-*Курсив*
-
-~~Зачёркнутый~~
-
-# Заголовок 1 уровня
-
-## Заголовок 2 уровня
-
-### Заголовок 3 уровня
 
 
+
+
+This project is a try to write game yourself. 
 
