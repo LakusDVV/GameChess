@@ -21,17 +21,13 @@
 <p align="center">  
 
   <!-- Badge Python -->
-  <a href="https://www.python.org/"> 
-    <img src="https://img.shields.io/badge/python-3.12-blue?logo=python&style=falt">
-  </a>
+  <img src="https://img.shields.io/badge/python-3.12-blue?logo=python&style=falt">
 
   <!-- Badge Status -->
   <img src="https://img.shields.io/badge/status-work_in_progress-green&style=falt">
-
+  
   <!-- Badge Raylib -->
-  <a href="https://www.raylib.com/">
-    <img src="https://img.shields.io/badge/raylib-5.5.0-black?logo=raylib&style=falt">
-  </a>
+  <img src="https://img.shields.io/badge/raylib-5.5.0-black?logo=raylib&style=falt">
 
 </p>
 
