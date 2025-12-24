@@ -1,9 +1,12 @@
 import raylibpy as rl
-from chessboard import ChessBoard
 import shapes
-from src.enums import MoveResult, PieceColor
 import os
-from paths import IMAGES_DIR
+
+from src.chessboard import ChessBoard
+from typing import Optional
+from src.enums import MoveResult, PieceColor
+from src.paths import IMAGES_DIR
+from dataclasses import dataclass
 
 
 
@@ -146,6 +149,7 @@ class Game:
     def create_figures(self):
         self.create_white_figures()
         self.create_black_figures()
+        self.chessboard.print_board()
 
 
     def create_white_figures(self):
@@ -264,7 +268,48 @@ class Game:
         pass
 
 
+@dataclass
+class MoveRecord:
+    piece: shapes.Figure
+    from_pos: tuple[int, int]
+    to_pos: tuple[int, int]
 
+    captured_piece: Optional[shapes.Figure] = None
+    captured_pos: Optional[tuple[int, int]] = None
+
+    rook: Optional[shapes.Figure] = None
+    rook_from: Optional[tuple[int, int]] = None
+    rook_to: Optional[tuple[int, int]] = None
+
+
+@dataclass
+class CastlingRights:
+    white_king_side: bool = True
+    white_queen_side: bool = True
+    black_king_side: bool = True
+    black_queen_side: bool = True
+
+    def can_castle_kingside(self, color: PieceColor):
+        return (
+            self.white_king_side
+            if color == PieceColor.WHITE
+            else self.black_king_side
+        )
+
+    def can_castle_queenside(self, color: PieceColor):
+        return (
+            self.white_queen_side
+            if color == PieceColor.WHITE
+            else self.black_queen_side
+        )
+
+
+@dataclass(frozen=True)
+class Move:
+    piece: shapes.Figure
+    from_pos: tuple[int, int]
+    to_pos: tuple[int, int]
+    special: Optional[str] = None  # "castle_kingside", "castle_queenside", "en_passant", "promotion_pawn", "capture"
 
 class MoveValidator:
     def __init__(self):
