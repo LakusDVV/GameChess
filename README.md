@@ -32,8 +32,7 @@
 </p>
 
 
-This project is an attempt to write a game by myself.
-
+This project is an attempt to write a game for yourself.
 
 
 ### Current state
