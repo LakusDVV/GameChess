@@ -50,7 +50,7 @@ class Render:
     Class for draw
 
     """
-    def __init__(self, *, chessboard: ChessBoard):
+    def __init__(self, *, chessboard: ChessBoard, texture_manager: TextureManager):
         self.rows = 8
         self.cols = 8
         self.tile_size = 70
@@ -60,9 +60,13 @@ class Render:
         rl.init_window(width, height, "Chess")
         rl.set_target_fps(60)
 
-        self.chessboard = chessboard
+        self._chessboard = chessboard
+        self.texture_manager= texture_manager
         self.light_color = rl.Color(r=240, g=217, b=181, a=255)
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
+        self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
+
+        self.highlighting: list[tuple[int, int]] = []
 
 
     def get_tile_color(self, x: int, y: int) -> rl.Color:
@@ -108,10 +112,33 @@ class Render:
 
     def draw_figures(self) -> None:
 
-        figures = self.chessboard.get_figures()
+        figures = self._chessboard.get_figures()
 
         for fig in figures:
             fig.draw()
+
+
+    def draw_highlighting(self) -> None:
+        chessboard = self._chessboard
+        highlighting_texture = self.texture_manager.get_texture("highlighting")
+
+        for nx, ny in self.highlighting:
+
+            if chessboard.is_empty(x=nx, y=ny):
+                rl.draw_circle(center_x=nx, center_y=ny, radius=self.tile_size // 5.5, color=self.highlighting_color)
+                continue
+
+            rl.draw_texture(texture=highlighting_texture, pos_x=nx, pos_y=ny, tint=rl.WHITE)
+
+
+
+
+# class MoveValidator:
+#     def check_move(self, moves: list[Move]) -> list[Move]:
+#         right_moves: list[Move] = []
+#         for move in moves:
+
+
 
 
 
@@ -122,9 +149,10 @@ class Game:
         self.tile_size = 70
 
         self.chessboard = ChessBoard()
-        self.render = Render(chessboard=self.chessboard)
         self.texture_manager = TextureManager()
         self.texture_manager.load_textures()
+        self.render = Render(chessboard=self.chessboard, texture_manager=self.texture_manager)
+
 
         self.create_figures()
 
@@ -268,6 +296,26 @@ class Game:
         pass
 
 
+    def filter_moves(self, moves: list):
+        right_moves: list[Move] = []
+
+        for move in moves:
+            mr = MoveRecord(
+                piece=move.piece,
+                from_pos=move.from_pos,
+                to_pos=move.to_pos
+            )
+            self.chessboard.apply_move(mr)
+            king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
+            self.chessboard.undo(mr)
+
+            if not king_is_check:
+                right_moves.append(move)
+
+        return right_moves
+
+
+
 @dataclass
 class MoveRecord:
     piece: shapes.Figure
@@ -311,9 +359,7 @@ class Move:
     to_pos: tuple[int, int]
     special: Optional[str] = None  # "castle_kingside", "castle_queenside", "en_passant", "promotion_pawn", "capture"
 
-class MoveValidator:
-    def __init__(self):
-        pass
+
 
 
 

@@ -24,7 +24,8 @@ class Figure:
 
     _deltas = None
 
-    def __init__(self, *, x: int, y: int, color, texture, tile_size=70):
+
+    def __init__(self, *, x: int, y: int, color: PieceColor, texture, tile_size=70):
         self.cord = (x, y)
         self.tile_size = tile_size
 
@@ -34,7 +35,6 @@ class Figure:
 
         self.first_move = True
         self.direction = -1 if self.color == PieceColor.WHITE else 1
-
 
 
     def draw(self):
@@ -155,6 +155,7 @@ class King(Figure):
 
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
+
     def get_moves(self, chessboard: ChessBoard) -> list:
         moves = []
         x, y = self.cord
@@ -193,7 +194,7 @@ class King(Figure):
 
 
 
-        rank: int = y
+        rank = y
 
         # kingside castling
         if chessboard.castling_rights.can_castle_kingside(self.color):
@@ -232,7 +233,6 @@ class King(Figure):
         return moves
 
 
-
     def __str__(self):
         return "♚" if self.color == "white" else "♔"
 
@@ -266,6 +266,7 @@ class Bishop(Figure):
 
 
 class Knight(Figure):
+
     _deltas = [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
 
 

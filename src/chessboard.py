@@ -1,6 +1,6 @@
 from src.enums import MoveResult, PieceColor
-from src.shapes import Figure
-from src.game import CastlingRights
+from src.shapes import Figure, King
+from src.game import Move, MoveRecord
 from typing import Optional
 
 
@@ -14,10 +14,10 @@ class ChessBoard:
 
 
         self._changes = []
-        self._figures = []
+        self._figures: list[Figure] = []
         self._board = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
 
-        self.castling_rights = CastlingRights
+        self.castling_rights: CastlingRights = CastlingRights()
         self.en_passant_target: Optional[tuple[int, int]] = None
         self.side_to_move: PieceColor = PieceColor.WHITE
 
@@ -40,16 +40,34 @@ class ChessBoard:
         return self._figures
 
 
-    def make_move(self, *,  old_x: int, old_y: int , new_x, new_y):
-        piece = self._board[old_y][old_x]
-        # target = self._board[new_y][new_x]
-        self._board[old_y][old_x] = 0
-        self._board[new_y][new_x] = piece
-        self._changes.append(((old_x, old_y), (new_x, new_y)))
+
+    def apply_move(self, move: MoveRecord):
+        from_x, from_y = move.from_pos
+        to_x, to_y = move.to_pos
+
+        piece: Figure = move.piece
+        target = self._board[from_y][from_x]
+
+        self._board[to_y][to_x] = piece
+        self._board[from_y][from_x] = 0
+
+        piece.cord = move.to_pos
 
 
-    def undo(self):
-        last = self._changes.pop()
+
+
+
+    def undo(self, move: MoveRecord):
+        from_x, from_y = move.from_pos
+        to_x, to_y = move.to_pos
+
+        piece: Figure = move.piece
+        target = self._board[from_y][from_x]
+
+        self._board[from_y][from_x] = piece
+        self._board[to_y][to_x] = 0
+
+        piece.cord = move.from_pos
 
 
     def is_empty(self, x: int, y: int) -> bool:
@@ -65,5 +83,27 @@ class ChessBoard:
             for x in rows:
                 print(f" {x} ", end="")
             print()
+
+
+    def king_is_check(self, color: PieceColor):
+
+        king_pos = self.find_king(color=color)
+
+        for fig in self._figures:
+            if king_pos in fig.get_moves(self):
+                return True
+        return False
+
+
+    def find_king(self, color: PieceColor) -> tuple[int, int]:
+        for fig in self._figures:
+            if isinstance(fig, King) and fig.color == color:
+                return fig.cord
+
+        raise Exception("King doesn't find")
+
+
+
+
 
 
