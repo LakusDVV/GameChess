@@ -1,6 +1,7 @@
+from shapes import King, Figure
+
 from src.enums import MoveResult, PieceColor
-from src.shapes import Figure, King
-from src.game import Move, MoveRecord
+from src.dataclass import MoveRecord, CastlingRights
 from typing import Optional
 
 
@@ -20,6 +21,7 @@ class ChessBoard:
         self.castling_rights: CastlingRights = CastlingRights()
         self.en_passant_target: Optional[tuple[int, int]] = None
         self.side_to_move: PieceColor = PieceColor.WHITE
+
 
 
     def get_board(self):
@@ -69,6 +71,10 @@ class ChessBoard:
 
         piece.cord = move.from_pos
 
+
+    def get_figure(self, *, cord) -> Figure | 0:
+        x, y = cord
+        return self._board[y][x]
 
     def is_empty(self, x: int, y: int) -> bool:
         return self._board[y][x] == 0

@@ -1,8 +1,8 @@
 import raylibpy as rl
 
-from src.enums import PieceColor
+from src.enums import PieceColor, MoveSpecial
 from src.chessboard import ChessBoard
-from src.game import Move
+from src.dataclass import Move
 
 
 class RenderComponent:
@@ -42,7 +42,7 @@ class Figure:
         self.renderer.draw(x=x, y=y, tile_size=self.tile_size)
 
 
-    def get_moves(self, chessboard: ChessBoard) -> list:
+    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -80,7 +80,7 @@ class Figure:
                             piece=self,
                             from_pos=self.cord,
                             to_pos=(tx, ty),
-                            special="capture"
+                            special=MoveSpecial.CAPTURE
                         )
                     )
                     break
@@ -141,7 +141,7 @@ class Pawn(Figure):
                             piece=self,
                             from_pos=self.cord,
                             to_pos=(nx, ny),
-                            special="en_passant"
+                            special=MoveSpecial.EN_PASSANT
                         )
                     )
 
@@ -156,7 +156,7 @@ class King(Figure):
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 
-    def get_moves(self, chessboard: ChessBoard) -> list:
+    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -188,7 +188,7 @@ class King(Figure):
                         piece=self,
                         from_pos=self.cord,
                         to_pos=(nx, ny),
-                        special="capture"
+                        special=MoveSpecial.CAPTURE
                     )
                 )
 
@@ -207,7 +207,7 @@ class King(Figure):
                         piece=self,
                         from_pos=self.cord,
                         to_pos=(7, rank),
-                        special="castle_kingside"
+                        special=MoveSpecial.CASTLE_KINGSIDE
                     )
                 )
 
@@ -224,7 +224,7 @@ class King(Figure):
                         piece=self,
                         from_pos=self.cord,
                         to_pos=(0, rank),
-                        special="castle_queenside"
+                        special=MoveSpecial.CASTLE_QUEENSIDE
                     )
                 )
 
@@ -270,7 +270,7 @@ class Knight(Figure):
     _deltas = [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
 
 
-    def get_moves(self, chessboard: ChessBoard) -> list:
+    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -301,7 +301,7 @@ class Knight(Figure):
                         piece=self,
                         from_pos=self.cord,
                         to_pos=(nx, ny),
-                        special="capture"
+                        special=MoveSpecial.CAPTURE
                     )
                 )
 

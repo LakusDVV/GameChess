@@ -4,9 +4,10 @@ import os
 
 from src.chessboard import ChessBoard
 from typing import Optional
-from src.enums import MoveResult, PieceColor
+from src.enums import MoveResult, PieceColor, MoveSpecial
 from src.paths import IMAGES_DIR
-from dataclasses import dataclass
+from src.dataclass import Move, MoveRecord, CastlingRights, History
+
 
 
 
@@ -66,7 +67,7 @@ class Render:
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
         self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
 
-        self.highlighting: list[tuple[int, int]] = []
+        self.highlighting_list: list[tuple[int, int]] = []
 
 
     def get_tile_color(self, x: int, y: int) -> rl.Color:
@@ -89,6 +90,7 @@ class Render:
 
         self.draw_tiles()
         self.draw_figures()
+        self.draw_highlighting()
 
         rl.end_drawing()
 
@@ -122,13 +124,25 @@ class Render:
         chessboard = self._chessboard
         highlighting_texture = self.texture_manager.get_texture("highlighting")
 
-        for nx, ny in self.highlighting:
+        for nx, ny in self.highlighting_list:
 
             if chessboard.is_empty(x=nx, y=ny):
                 rl.draw_circle(center_x=nx, center_y=ny, radius=self.tile_size // 5.5, color=self.highlighting_color)
-                continue
 
-            rl.draw_texture(texture=highlighting_texture, pos_x=nx, pos_y=ny, tint=rl.WHITE)
+            else:
+                rl.draw_texture(texture=highlighting_texture, pos_x=nx, pos_y=ny, tint=rl.WHITE)
+
+
+    def change_highlighting(self, new_moves: list[Move]):
+        moves = []
+        for move in new_moves:
+            moves.append(move.to_pos)
+
+        self.highlighting_list = moves
+
+
+    def clear_highlighting(self) -> None:
+        self.highlighting_list = []
 
 
 
@@ -157,6 +171,7 @@ class Game:
         self.create_figures()
 
         self.mouse_first_right_click = False
+        self.piece: shapes.Figure
 
 
     def run(self):
@@ -284,89 +299,120 @@ class Game:
 
         board = self.chessboard.get_board()
 
-        piece = board[board_y][board_x]
+
 
 
         if not self.mouse_first_right_click:
-            if piece:
-                self._first_click(piece=piece, board_x=board_x, board_y=board_y)
+            self.piece = board[board_y][board_x]
+
+            status = self._first_click(piece=self.piece)
+
+            if status == MoveResult.OK:
+                self.mouse_first_right_click = True
+            print(status)
+
+        elif self.mouse_first_right_click:
+            status = self._second_click(piece=self.piece, board_x=board_x, board_y=board_y)
 
 
-    def _first_click(self, piece, board_x: int, board_y: int):
-        pass
+
+    def _first_click(self, *, piece):
+        if not piece == 0:
+            moves = piece.get_moves(chessboard=self.chessboard)
+            right_moves = self.filter_moves(moves=moves)
+            self.render.change_highlighting(new_moves=right_moves)
+            return MoveResult.OK
+        else:
+            return MoveResult.INVALID_MOVE
+
+
+    def _second_click(self, *, piece, board_x, board_y):
+        return MoveResult.INVALID_MOVE
+
 
 
     def filter_moves(self, moves: list):
         right_moves: list[Move] = []
 
         for move in moves:
-            mr = MoveRecord(
-                piece=move.piece,
-                from_pos=move.from_pos,
-                to_pos=move.to_pos
-            )
-            self.chessboard.apply_move(mr)
-            king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
-            self.chessboard.undo(mr)
+            status = self.filter_move(move)
 
-            if not king_is_check:
+            if status == MoveResult.OK:
                 right_moves.append(move)
+
 
         return right_moves
 
 
-
-@dataclass
-class MoveRecord:
-    piece: shapes.Figure
-    from_pos: tuple[int, int]
-    to_pos: tuple[int, int]
-
-    captured_piece: Optional[shapes.Figure] = None
-    captured_pos: Optional[tuple[int, int]] = None
-
-    rook: Optional[shapes.Figure] = None
-    rook_from: Optional[tuple[int, int]] = None
-    rook_to: Optional[tuple[int, int]] = None
-
-
-@dataclass
-class CastlingRights:
-    white_king_side: bool = True
-    white_queen_side: bool = True
-    black_king_side: bool = True
-    black_queen_side: bool = True
-
-    def can_castle_kingside(self, color: PieceColor):
-        return (
-            self.white_king_side
-            if color == PieceColor.WHITE
-            else self.black_king_side
+    def filter_move(self, move):
+        mr = MoveRecord(
+            piece=move.piece,
+            from_pos=move.from_pos,
+            to_pos=move.to_pos
         )
+        self.chessboard.apply_move(mr)
+        king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
+        self.chessboard.undo(mr)
 
-    def can_castle_queenside(self, color: PieceColor):
-        return (
-            self.white_queen_side
-            if color == PieceColor.WHITE
-            else self.black_queen_side
+        if king_is_check:
+            return MoveResult.CHECK
+        return MoveResult.OK
+
+
+    def move_to_move_record(self, move: Move):
+
+        captured_piece: Optional[shapes.Figure] = None
+        captured_pos: Optional[tuple[int, int]] = None
+
+        rook: Optional[shapes.Figure] = None
+        rook_from: Optional[tuple[int, int]] = None
+        rook_to: Optional[tuple[int, int]] = None
+
+        prev_castling_rights: CastlingRights = self.chessboard.castling_rights
+        prev_en_passant: Optional[tuple[int, int]] = self.chessboard.en_passant_target
+
+
+        board = self.chessboard.get_board()
+        new_x, new_y = move.to_pos
+
+        match move:
+            case MoveSpecial.CAPTURE:
+                captured_piece = board[new_y][new_x]
+                captured_pos = (new_x, new_y)
+
+            case MoveSpecial.CASTLE_KINGSIDE:
+                rook = board[new_y][new_x + 1]
+                rook_from = (new_y, new_x + 1)
+                rook_to = (new_y, new_x - 1)
+
+            case MoveSpecial.CASTLE_QUEENSIDE:
+                rook = board[new_y][new_x - 2]
+                rook_from = (new_y, new_x - 2)
+                rook_to = (new_y, new_x + 1)
+
+            case MoveSpecial.EN_PASSANT:
+                captured_piece = self.chessboard.get_figure(prev_en_passant)
+                captured_pos = self.chessboard.en_passant_target
+
+
+        mr = MoveRecord(
+            piece=move.piece,
+            from_pos=move.from_pos,
+            to_pos=move.to_pos,
+
+            captured_piece = captured_piece,
+            captured_pos = captured_pos,
+
+            rook = rook,
+            rook_from = rook_from,
+            rook_to = rook_to,
+
+            prev_castling_rights= prev_castling_rights,
+            prev_en_passant= prev_en_passant
+
+
         )
-
-
-@dataclass(frozen=True)
-class Move:
-    piece: shapes.Figure
-    from_pos: tuple[int, int]
-    to_pos: tuple[int, int]
-    special: Optional[str] = None  # "castle_kingside", "castle_queenside", "en_passant", "promotion_pawn", "capture"
-
-
-
-
-
-
-
-
-
+        return mr
 
 
 def view_status_add_figure(status: MoveResult):
