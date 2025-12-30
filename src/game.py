@@ -1,156 +1,12 @@
 import raylibpy as rl
 import shapes
-import os
+
 
 from src.chessboard import ChessBoard
 from typing import Optional
 from src.enums import MoveResult, PieceColor, MoveSpecial
-from src.paths import IMAGES_DIR
+from src.render import TextureManager, Render
 from src.dataclass import Move, MoveRecord, CastlingRights, History
-
-
-
-
-
-
-
-class TextureManager:
-    def __init__(self):
-        self._textures = {}
-
-
-    def load_textures(self):
-        self._load("black_king",    "black_king.png")
-        self._load("black_queen",   "black_queen.png")
-        self._load("black_rook",    "black_rook.png")
-        self._load("black_bishop",  "black_bishop.png")
-        self._load("black_knight",  "black_knight.png")
-        self._load("black_pawn",    "black_pawn.png")
-        self._load("white_king",    "white_king.png")
-        self._load("white_queen",   "white_queen.png")
-        self._load("white_rook",    "white_rook.png")
-        self._load("white_bishop",  "white_bishop.png")
-        self._load("white_knight",  "white_knight.png")
-        self._load("white_pawn",    "white_pawn.png")
-        self._load("highlighting",  "highlighting_texture.png")
-
-
-    def _load(self, key: str, filename: str):
-        path = os.path.join(IMAGES_DIR, filename)
-        texture = rl.load_texture(path)
-        assert texture.id != 0, f"Failed to load texture: {path}"
-        self._textures[key] = texture
-
-
-    def get_texture(self, name):
-        return self._textures[name]
-
-
-class Render:
-    """
-    Class for draw
-
-    """
-    def __init__(self, *, chessboard: ChessBoard, texture_manager: TextureManager):
-        self.rows = 8
-        self.cols = 8
-        self.tile_size = 70
-        width = self.cols * self.tile_size
-        height = self.rows * self.tile_size
-
-        rl.init_window(width, height, "Chess")
-        rl.set_target_fps(60)
-
-        self._chessboard = chessboard
-        self.texture_manager= texture_manager
-        self.light_color = rl.Color(r=240, g=217, b=181, a=255)
-        self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
-        self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
-
-        self.highlighting_list: list[tuple[int, int]] = []
-
-
-    def get_tile_color(self, x: int, y: int) -> rl.Color:
-        """
-        Returns the color tile for the tile
-
-        Args:
-            x (int): cord x tile
-            y (int): cord y tile
-
-        Returns:
-            rl.Color: the color tile
-        """
-        return self.light_color if (x + y) % 2 == 0 else self.dark_color
-
-
-    def draw(self):
-        rl.begin_drawing()
-        rl.clear_background(rl.RAYWHITE)
-
-        self.draw_tiles()
-        self.draw_figures()
-        self.draw_highlighting()
-
-        rl.end_drawing()
-
-
-    def draw_tiles(self) -> None:
-        """
-        Draw tiles
-        """
-
-        for y in range(self.cols):
-            for x in range(self.rows):
-                color = self.get_tile_color(x, y)
-                rl.draw_rectangle(
-                    pos_x= x * self.tile_size,
-                    pos_y= y * self.tile_size,
-                    width= self.tile_size,
-                    height= self.tile_size,
-                    color= color
-                )
-
-
-    def draw_figures(self) -> None:
-
-        figures = self._chessboard.get_figures()
-
-        for fig in figures:
-            fig.draw()
-
-
-    def draw_highlighting(self) -> None:
-        chessboard = self._chessboard
-        highlighting_texture = self.texture_manager.get_texture("highlighting")
-
-        for nx, ny in self.highlighting_list:
-
-            if chessboard.is_empty(x=nx, y=ny):
-                rl.draw_circle(center_x=nx, center_y=ny, radius=self.tile_size // 5.5, color=self.highlighting_color)
-
-            else:
-                rl.draw_texture(texture=highlighting_texture, pos_x=nx, pos_y=ny, tint=rl.WHITE)
-
-
-    def change_highlighting(self, new_moves: list[Move]):
-        moves = []
-        for move in new_moves:
-            moves.append(move.to_pos)
-
-        self.highlighting_list = moves
-
-
-    def clear_highlighting(self) -> None:
-        self.highlighting_list = []
-
-
-
-
-# class MoveValidator:
-#     def check_move(self, moves: list[Move]) -> list[Move]:
-#         right_moves: list[Move] = []
-#         for move in moves:
 
 
 
@@ -164,9 +20,9 @@ class Game:
 
         self.chessboard = ChessBoard()
         self.texture_manager = TextureManager()
-        self.texture_manager.load_textures()
-        self.render = Render(chessboard=self.chessboard, texture_manager=self.texture_manager)
 
+        self.render = Render(chessboard=self.chessboard, texture_manager=self.texture_manager)
+        self.texture_manager.load_textures()
 
         self.create_figures()
 

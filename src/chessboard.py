@@ -72,7 +72,7 @@ class ChessBoard:
         piece.cord = move.from_pos
 
 
-    def get_figure(self, *, cord) -> Figure | 0:
+    def get_figure(self, *, cord):
         x, y = cord
         return self._board[y][x]
 

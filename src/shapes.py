@@ -1,22 +1,7 @@
-import raylibpy as rl
-
 from src.enums import PieceColor, MoveSpecial
-from src.chessboard import ChessBoard
 from src.dataclass import Move
+from src.render import RenderComponent
 
-
-class RenderComponent:
-    def __init__(self, texture):
-        self.texture = texture
-
-
-    def draw(self, *, x, y, tile_size):
-        rl.draw_texture(
-            texture=self.texture,
-            pos_x=x * tile_size,
-            pos_y=y * tile_size,
-            tint= rl.WHITE
-        )
 
 
 
@@ -42,7 +27,7 @@ class Figure:
         self.renderer.draw(x=x, y=y, tile_size=self.tile_size)
 
 
-    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
+    def get_moves(self, *, chessboard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -99,7 +84,7 @@ class Figure:
 
 class Pawn(Figure):
 
-    def get_moves(self, chessboard: ChessBoard):
+    def get_moves(self, chessboard):
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -156,7 +141,7 @@ class King(Figure):
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 
-    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
+    def get_moves(self, *, chessboard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard
@@ -270,7 +255,7 @@ class Knight(Figure):
     _deltas = [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
 
 
-    def get_moves(self, *, chessboard: ChessBoard) -> list[Move]:
+    def get_moves(self, *, chessboard) -> list[Move]:
         moves = []
         x, y = self.cord
         chessboard = chessboard

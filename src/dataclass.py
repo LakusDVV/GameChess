@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-from src.shapes import Figure
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from src.enums import PieceColor, MoveSpecial
+
+if TYPE_CHECKING:
+    from shapes import Figure
+
 
 @dataclass(frozen=True)
 class Move:
-    piece: Figure
+    piece: "Figure"
     from_pos: tuple[int, int]
     to_pos: tuple[int, int]
     special: Optional[MoveSpecial] = None  # "castle_kingside", "castle_queenside", "en_passant", "promotion_pawn", "capture"
@@ -36,14 +39,14 @@ class CastlingRights:
 
 @dataclass
 class MoveRecord:
-    piece: Figure
+    piece: "Figure"
     from_pos: tuple[int, int]
     to_pos: tuple[int, int]
 
-    captured_piece: Optional[Figure] = None
+    captured_piece: Optional["Figure"] = None
     captured_pos: Optional[tuple[int, int]] = None
 
-    rook: Optional[Figure] = None
+    rook: Optional["Figure"] = None
     rook_from: Optional[tuple[int, int]] = None
     rook_to: Optional[tuple[int, int]] = None
 
