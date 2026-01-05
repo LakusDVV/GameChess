@@ -96,7 +96,7 @@ class ChessBoard:
         king_pos = self.find_king(color=color)
 
         for fig in self._figures:
-            if king_pos in fig.get_moves(self):
+            if king_pos in fig.get_moves(chessboard=self):
                 return True
         return False
 

@@ -63,6 +63,7 @@ class Render:
         self.rows = 8
         self.cols = 8
         self.tile_size = 70
+        self.radius = self.tile_size // 5.5
         width = self.cols * self.tile_size
         height = self.rows * self.tile_size
 
@@ -134,11 +135,27 @@ class Render:
 
         for nx, ny in self.highlighting_list:
 
+            cx = nx * self.tile_size + self.tile_size // 2
+            cy = ny * self.tile_size + self.tile_size // 2
+            tx = nx * self.tile_size + self.tile_size
+            ty = ny * self.tile_size + self.tile_size
+
+
             if chessboard.is_empty(x=nx, y=ny):
-                rl.draw_circle(center_x=nx, center_y=ny, radius=self.tile_size // 5.5, color=self.highlighting_color)
+                rl.draw_circle(
+                    center_x=cx,
+                    center_y=cy,
+                    radius=self.radius,
+                    color=self.highlighting_color
+                )
 
             else:
-                rl.draw_texture(texture=highlighting_texture, pos_x=nx, pos_y=ny, tint=rl.WHITE)
+                rl.draw_texture(
+                    texture=highlighting_texture,
+                    pos_x=tx,
+                    pos_y=ty,
+                    tint=rl.WHITE
+                )
 
 
     def change_highlighting(self, new_moves: list[Move]):

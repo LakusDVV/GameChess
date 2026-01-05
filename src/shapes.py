@@ -19,7 +19,7 @@ class Figure:
         self.renderer =  RenderComponent(texture)
 
         self.first_move = True
-        self.direction = -1 if self.color == PieceColor.WHITE else 1
+        self.direction = 1 if self.color == PieceColor.WHITE else -1 # The bug,  because my board
 
 
     def draw(self):
@@ -91,7 +91,7 @@ class Pawn(Figure):
         board = chessboard.get_board()
 
         if chessboard.is_inside(x, y + self.direction):
-            if chessboard.is_empty(y + self.direction, x):
+            if chessboard.is_empty(x, y + self.direction):
                 moves.append(
                     Move(
                         piece=self,
@@ -104,21 +104,24 @@ class Pawn(Figure):
                 # two moves forward, if the first move
                 if self.first_move:
                     if chessboard.is_empty(x, y + 2 * self.direction):
+
                         moves.append(
-                            moves.append(
-                                Move(
-                                    piece=self,
-                                    from_pos=self.cord,
-                                    to_pos=(x, y + 2 * self.direction),
-                                    special=None
-                                )
+                            Move(
+                                piece=self,
+                                from_pos=self.cord,
+                                to_pos=(x, y + 2 * self.direction),
+                                special=None
                             )
                         )
 
+
         for dx in (-1, 1):
             nx, ny = x + dx, y + self.direction
-            if chessboard.is_inside(nx, ny):
+            if chessboard.is_inside(nx, ny) and not chessboard.is_empty(nx, ny):
+
                 target = board[ny][nx]
+
+
 
                 if target.color != self.color:
                     moves.append(
@@ -129,6 +132,7 @@ class Pawn(Figure):
                             special=MoveSpecial.EN_PASSANT
                         )
                     )
+        return moves
 
 
     def __str__(self):

@@ -29,10 +29,13 @@ class Game:
         self.mouse_first_right_click = False
         self.piece: shapes.Figure
 
+        self.has_move: PieceColor = PieceColor.WHITE
+
 
     def run(self):
         while not rl.window_should_close():
             self.render.draw()
+            self.update()
 
         rl.close_window()
 
@@ -42,6 +45,7 @@ class Game:
         mouse_y = rl.get_mouse_y()
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
+            print(mouse_x, mouse_y)
             self.mouse_right_button(mouse_x, mouse_y)
 
 
@@ -149,6 +153,10 @@ class Game:
             view_status_add_figure(status)
 
 
+    def after_move(self):
+        self.has_move = PieceColor.WHITE if self.has_move == PieceColor.BLACK else PieceColor.BLACK
+
+
     def mouse_right_button(self, mouse_x, mouse_y):
         board_x = mouse_x // self.tile_size
         board_y = mouse_y // self.tile_size
@@ -161,11 +169,16 @@ class Game:
         if not self.mouse_first_right_click:
             self.piece = board[board_y][board_x]
 
-            status = self._first_click(piece=self.piece)
+            if self.piece.color == self.has_move:
 
-            if status == MoveResult.OK:
-                self.mouse_first_right_click = True
-            print(status)
+                status = self._first_click(piece=self.piece)
+
+                if status == MoveResult.OK:
+                    self.mouse_first_right_click = True
+                print(status)
+                self.after_move()
+            else:
+                print("Error, this piece don't have move")
 
         elif self.mouse_first_right_click:
             status = self._second_click(piece=self.piece, board_x=board_x, board_y=board_y)
@@ -190,14 +203,17 @@ class Game:
     def filter_moves(self, moves: list):
         right_moves: list[Move] = []
 
-        for move in moves:
-            status = self.filter_move(move)
+        if moves:
 
-            if status == MoveResult.OK:
-                right_moves.append(move)
+            for move in moves:
+                status = self.filter_move(move)
+
+                if status == MoveResult.OK:
+                    right_moves.append(move)
 
 
-        return right_moves
+            return right_moves
+        return []
 
 
     def filter_move(self, move):
