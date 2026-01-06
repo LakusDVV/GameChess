@@ -18,7 +18,7 @@ class Figure:
         self.texture = texture
         self.renderer =  RenderComponent(texture)
 
-        self.first_move = True
+
         self.direction = 1 if self.color == PieceColor.WHITE else -1 # The bug,  because my board
 
 
@@ -90,6 +90,8 @@ class Pawn(Figure):
         chessboard = chessboard
         board = chessboard.get_board()
 
+        start_pos = 6 if self.color == PieceColor.WHITE else 1
+
         if chessboard.is_inside(x, y + self.direction):
             if chessboard.is_empty(x, y + self.direction):
                 moves.append(
@@ -102,7 +104,7 @@ class Pawn(Figure):
                 )
 
                 # two moves forward, if the first move
-                if self.first_move:
+                if y == start_pos:
                     if chessboard.is_empty(x, y + 2 * self.direction):
 
                         moves.append(
