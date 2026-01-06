@@ -27,9 +27,12 @@ class Game:
         self.create_figures()
 
         self.mouse_first_right_click = False
-        self.piece: shapes.Figure
+        self.selected_piece: shapes.Figure
 
         self.has_move: PieceColor = PieceColor.WHITE
+        self.available_moves = []
+
+        self.history: list[MoveRecord] = []
 
 
     def run(self):
@@ -167,21 +170,21 @@ class Game:
 
 
         if not self.mouse_first_right_click:
-            self.piece = board[board_y][board_x]
+            self.selected_piece = board[board_y][board_x]
 
-            if self.piece.color == self.has_move:
+            if self.selected_piece.color == self.has_move:
 
-                status = self._first_click(piece=self.piece)
+                status = self._first_click(piece=self.selected_piece)
 
+                print(status)
                 if status == MoveResult.OK:
                     self.mouse_first_right_click = True
-                print(status)
-                self.after_move()
+
             else:
                 print("Error, this piece don't have move")
 
         elif self.mouse_first_right_click:
-            status = self._second_click(piece=self.piece, board_x=board_x, board_y=board_y)
+            status = self._second_click(board_x=board_x, board_y=board_y)
 
 
 
@@ -189,15 +192,42 @@ class Game:
         if not piece == 0:
             moves = piece.get_moves(chessboard=self.chessboard)
             right_moves = self.filter_moves(moves=moves)
-            self.render.change_highlighting(new_moves=right_moves)
+            self.render.change_highlighting(new_moves=right_moves)\
+
+            self.available_moves = right_moves
             return MoveResult.OK
         else:
             return MoveResult.INVALID_MOVE
 
 
-    def _second_click(self, *, piece, board_x, board_y):
-        return MoveResult.INVALID_MOVE
+    def _second_click(self, *, board_x, board_y):
+        move = self.find_move_to(x=board_x, y=board_y)
 
+        if move:
+            self.make_move(move)
+            self.after_move()
+            self.render.clear_highlighting()
+            return MoveResult.OK
+        else:
+            return MoveResult.INVALID_MOVE
+
+
+    def make_move(self, move):
+        record = self.move_to_move_record(move=move)
+
+        self.chessboard.apply_move(record)
+
+        self.history.append(record)
+        self.available_moves.clear()
+
+
+
+
+    def find_move_to(self, x, y) -> Optional[Move]:
+        for move in self.available_moves:
+            if move.to_pos == (x, y):
+                return move
+        return None
 
 
     def filter_moves(self, moves: list):

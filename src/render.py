@@ -167,5 +167,5 @@ class Render:
 
 
     def clear_highlighting(self) -> None:
-        self.highlighting_list = []
+        self.highlighting_list.clear()
 
