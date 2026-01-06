@@ -55,7 +55,7 @@ class Game:
     def create_figures(self):
         self.create_white_figures()
         self.create_black_figures()
-        self.chessboard.print_board()
+        print(self.chessboard)
 
 
     def create_white_figures(self):
@@ -185,11 +185,12 @@ class Game:
 
 
 
+
     def _first_click(self, *, piece):
         if not piece == 0:
             moves = piece.get_moves(chessboard=self.chessboard)
             right_moves = self.filter_moves(moves=moves)
-            self.render.change_highlighting(new_moves=right_moves)\
+            self.render.change_highlighting(new_moves=right_moves)
 
             self.available_moves = right_moves
             return MoveResult.OK

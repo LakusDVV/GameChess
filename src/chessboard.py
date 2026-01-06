@@ -1,4 +1,4 @@
-from shapes import King, Figure
+from shapes import King, Figure, Rook, Pawn
 
 from src.enums import MoveResult, PieceColor
 from src.dataclass import MoveRecord, CastlingRights
@@ -48,7 +48,7 @@ class ChessBoard:
         to_x, to_y = move.to_pos
 
         piece: Figure = move.piece
-        target = self._board[from_y][from_x]
+
 
         self._board[to_y][to_x] = piece
         self._board[from_y][from_x] = 0
@@ -59,12 +59,56 @@ class ChessBoard:
 
 
 
+    def change_castling_rights(self, record: MoveRecord):
+        piece = record.piece
+        from_x, from_y = record.from_pos
+        to_x, to_y = record.to_pos
+        color = record.piece.color
+
+
+        if isinstance(record.piece, Rook):
+
+            if from_x == 0 and self.castling_rights.can_castle_kingside(color):
+                if color == PieceColor.WHITE:
+                    self.castling_rights.white_king_side = False
+
+                if color == PieceColor.BLACK:
+                    self.castling_rights.black_king_side = False
+
+            if from_x == 7 and self.castling_rights.can_castle_queenside(color):
+                if color == PieceColor.WHITE:
+                    self.castling_rights.white_queen_side = False
+
+                if color == PieceColor.BLACK:
+                    self.castling_rights.black_queen_side = False
+
+
+        if isinstance(piece, King):
+            if color == PieceColor.WHITE:
+                self.castling_rights.white_king_side = False
+                self.castling_rights.white_queen_side = False
+
+            elif color == PieceColor.BLACK:
+                self.castling_rights.black_king_side = False
+                self.castling_rights.black_queen_side = False
+
+        dif = abs(from_y - to_y)
+        if isinstance(piece, Pawn) and dif == 2:
+            self.en_passant_target = (from_x, 2) if color == PieceColor else (from_x, 5)
+
+        else:
+            self.en_passant_target = None
+
+
+
+
+
     def undo(self, move: MoveRecord):
         from_x, from_y = move.from_pos
         to_x, to_y = move.to_pos
 
         piece: Figure = move.piece
-        target = self._board[from_y][from_x]
+
 
         self._board[from_y][from_x] = piece
         self._board[to_y][to_x] = 0
@@ -76,19 +120,15 @@ class ChessBoard:
         x, y = cord
         return self._board[y][x]
 
+
     def is_empty(self, x: int, y: int) -> bool:
-        return self._board[y][x] == 0
+        piece = self._board[y][x]
+        return  piece == 0
 
 
     def is_inside(self, x: int, y: int) -> bool:
         return 0 <= x < self.rows and 0 <= y < self.cols
 
-
-    def print_board(self):
-        for rows in self._board:
-            for x in rows:
-                print(f" {x} ", end="")
-            print()
 
 
     def king_is_check(self, color: PieceColor):
@@ -109,7 +149,12 @@ class ChessBoard:
         raise Exception("King doesn't find")
 
 
-
-
+    def __str__(self):
+        text = ""
+        for rows in self._board:
+            for x in rows:
+                text += f" {x} "
+            text += "\n"
+        return text
 
 

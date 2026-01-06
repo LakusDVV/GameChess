@@ -1,8 +1,11 @@
 import raylibpy as rl
 from src.paths import IMAGES_DIR
 from src.dataclass import Move
+from typing import Optional, TYPE_CHECKING
 import os
 
+if TYPE_CHECKING:
+    from src.chessboard import ChessBoard
 
 class RenderComponent:
     def __init__(self, texture):
@@ -70,7 +73,7 @@ class Render:
         rl.init_window(width, height, "Chess")
         rl.set_target_fps(60)
 
-        self._chessboard = chessboard
+        self._chessboard: ChessBoard = chessboard
         self.texture_manager= texture_manager
         self.light_color = rl.Color(r=240, g=217, b=181, a=255)
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
