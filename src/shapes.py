@@ -2,9 +2,6 @@ from src.enums import PieceColor, MoveSpecial
 from src.dataclass import Move
 from src.render import RenderComponent
 
-
-
-
 class Figure:
 
     _deltas = None
@@ -90,7 +87,7 @@ class Pawn(Figure):
         chessboard = chessboard
         board = chessboard.get_board()
 
-        start_pos = 6 if self.color == PieceColor.WHITE else 1
+        start_pos = 1 if self.color == PieceColor.WHITE else 6
 
         if chessboard.is_inside(x, y + self.direction):
             if chessboard.is_empty(x, y + self.direction):
@@ -131,9 +128,20 @@ class Pawn(Figure):
                             piece=self,
                             from_pos=self.cord,
                             to_pos=(nx, ny),
-                            special=MoveSpecial.EN_PASSANT
+                            special=MoveSpecial.CAPTURE
                         )
                     )
+            if chessboard.en_passant_target == (nx, ny):
+
+                moves.append(
+                    Move(
+                        piece=self,
+                        from_pos=self.cord,
+                        to_pos=(nx, ny),
+                        special=MoveSpecial.EN_PASSANT
+                    )
+                )
+
         return moves
 
 

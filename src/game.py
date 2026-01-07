@@ -166,6 +166,8 @@ class Game:
 
         board = self.chessboard.get_board()
 
+
+
         if not self.mouse_first_right_click:
             self.selected_piece = board[board_y][board_x]
 
@@ -182,6 +184,8 @@ class Game:
 
         elif self.mouse_first_right_click:
             status = self._second_click(board_x=board_x, board_y=board_y)
+
+        print(self.chessboard)
 
 
 
@@ -248,11 +252,7 @@ class Game:
 
 
     def filter_move(self, move):
-        mr = MoveRecord(
-            piece=move.piece,
-            from_pos=move.from_pos,
-            to_pos=move.to_pos
-        )
+        mr = self.move_to_move_record(move=move)
         self.chessboard.apply_move(mr)
         king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
         self.chessboard.undo(mr)

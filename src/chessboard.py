@@ -2,7 +2,7 @@ from shapes import King, Figure, Rook, Pawn
 
 from src.enums import MoveResult, PieceColor
 from src.dataclass import MoveRecord, CastlingRights
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 
 
@@ -55,6 +55,11 @@ class ChessBoard:
 
         piece.cord = move.to_pos
 
+        self.change_castling_rights(move)
+
+        if move.captured_piece:
+            self._figures.remove(move.captured_piece)
+
 
 
 
@@ -94,7 +99,7 @@ class ChessBoard:
 
         dif = abs(from_y - to_y)
         if isinstance(piece, Pawn) and dif == 2:
-            self.en_passant_target = (from_x, 2) if color == PieceColor else (from_x, 5)
+            self.en_passant_target = (from_x, (from_y + to_y) / 2)
 
         else:
             self.en_passant_target = None
@@ -111,9 +116,17 @@ class ChessBoard:
 
 
         self._board[from_y][from_x] = piece
-        self._board[to_y][to_x] = 0
+
+        if move.captured_piece is None:
+            self._board[to_y][to_x] = 0
+        else:
+            self._board[to_y][to_x] = move.captured_piece
+            self._figures.append(move.captured_piece)
 
         piece.cord = move.from_pos
+
+        self.castling_rights = move.prev_castling_rights
+        self.en_passant_target = move.prev_en_passant
 
 
     def get_figure(self, *, cord):
@@ -123,7 +136,7 @@ class ChessBoard:
 
     def is_empty(self, x: int, y: int) -> bool:
         piece = self._board[y][x]
-        return  piece == 0
+        return piece == 0
 
 
     def is_inside(self, x: int, y: int) -> bool:
