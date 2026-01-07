@@ -1,4 +1,4 @@
-from shapes import King, Figure, Rook, Pawn
+from shapes import King, Figure, Rook, Pawn, Knight, Queen, Bishop
 
 from src.enums import MoveResult, PieceColor
 from src.dataclass import MoveRecord, CastlingRights
@@ -129,7 +129,7 @@ class ChessBoard:
         self.en_passant_target = move.prev_en_passant
 
 
-    def get_figure(self, *, cord):
+    def get_piece(self, *, cord: tuple[int, int]) -> Figure:
         x, y = cord
         return self._board[y][x]
 
@@ -146,11 +146,100 @@ class ChessBoard:
 
     def king_is_check(self, color: PieceColor):
 
-        king_pos = self.find_king(color=color)
+        kx, ky = self.find_king(color=color)
+        enemy = color.opposite()
 
-        for fig in self._figures:
-            if king_pos in fig.get_moves(chessboard=self):
+        return self.is_square_attacked(enemy=enemy, kx=kx, ky=ky)
+
+
+
+
+    def is_square_attacked(self, kx, ky, enemy):
+        ray_attack = {
+            (Rook, Queen): [
+                (1, 0), (0, 1), (-1, 0), (0, -1)
+            ],
+            (Bishop, Queen) : [
+                (1, 1), (1, -1), (-1, 1), (-1, -1)
+            ]
+        }
+        single_attack = {
+            King: [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)],
+
+            Knight: [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
+        }
+
+        for ex, deltas in ray_attack.items():
+            if self.ray_attack(
+                    kx=kx,
+                    ky=ky,
+                    enemy_color=enemy,
+                    expected_types=ex,
+                    deltas=deltas
+            ):
                 return True
+
+        for ex, deltas in single_attack.items():
+            if self.single_attack(
+                    kx=kx,
+                    ky=ky,
+                    enemy_color=enemy,
+                    expected_types=ex,
+                    deltas=deltas
+            ):
+                return True
+
+        direction = -1 if enemy == PieceColor.WHITE else 1
+
+        for dx in (-1, 1):
+            if self.has_piece(kx + dx, ky - direction, Pawn, enemy):
+                return True
+
+        return False
+
+
+    def has_piece(self, x: int, y: int, piece_type: type, color: PieceColor
+    ) -> bool:
+        if not self.is_inside(x, y):
+            return False
+
+        piece = self._board[y][x]
+        if piece == 0:
+            return False
+
+        return isinstance(piece, piece_type) and piece.color == color
+
+
+    def ray_attack(self, enemy_color, expected_types, deltas, kx, ky):
+        deltas = deltas
+
+        for dx, dy in deltas:
+            nx, ny = kx + dx, ky + dy
+            while True:
+                if not self.is_inside(nx, ny):
+                    break
+                cord: tuple[int, int] = (nx, ny)
+                piece: Figure = self.get_piece(cord=cord)
+
+                if piece:
+                    return piece.color == enemy_color and isinstance(piece, expected_types)
+                nx, ny = nx + dx, ny + dy
+        return False
+
+
+    def single_attack(self, enemy_color, expected_types, deltas, kx, ky):
+        deltas = deltas
+
+        for dx, dy in deltas:
+            nx, ny = kx + dx, ky + dy
+
+            if not self.is_inside(nx, ny):
+                continue
+            cord: tuple[int, int] = (nx, ny)
+            piece: Figure = self.get_piece(cord=cord)
+            if piece:
+                return piece.color == enemy_color and isinstance(piece, expected_types)
+
         return False
 
 

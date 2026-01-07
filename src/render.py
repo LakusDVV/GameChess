@@ -140,8 +140,8 @@ class Render:
 
             cx = nx * self.tile_size + self.tile_size // 2
             cy = ny * self.tile_size + self.tile_size // 2
-            tx = nx * self.tile_size + self.tile_size
-            ty = ny * self.tile_size + self.tile_size
+            tx = nx * self.tile_size
+            ty = ny * self.tile_size
 
 
             if chessboard.is_empty(x=nx, y=ny):

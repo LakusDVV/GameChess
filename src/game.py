@@ -278,7 +278,7 @@ class Game:
         board = self.chessboard.get_board()
         new_x, new_y = move.to_pos
 
-        match move:
+        match move.special:
             case MoveSpecial.CAPTURE:
                 captured_piece = board[new_y][new_x]
                 captured_pos = (new_x, new_y)

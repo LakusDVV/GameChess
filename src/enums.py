@@ -1,16 +1,20 @@
 from enum import Enum, auto
 
 class PieceColor(Enum):
-    BLACK = "black"
-    WHITE = "white"
+    BLACK = auto()
+    WHITE = auto()
+
+    def opposite(self) -> "PieceColor":
+        return PieceColor.WHITE if self is PieceColor.BLACK else PieceColor.BLACK
+
 
 class PieceType(Enum):
-    KING = "king"
-    QUEEN = "queen"
-    ROOK = "rook"
-    BISHOP = "bishop"
-    KNIGHT = "knight"
-    PAWN = "pawn"
+    KING =  auto()
+    QUEEN = auto()
+    ROOK =  auto()
+    BISHOP = auto()
+    KNIGHT = auto()
+    PAWN =  auto()
 
 class MoveResult(Enum):
     OK = auto()

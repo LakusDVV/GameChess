@@ -44,7 +44,7 @@ class Figure:
                 if not chessboard.is_inside(tx, ty):
                     break
 
-                target: Figure = board[ty][ty]
+                target: Figure = board[ty][tx]
 
                 if target == 0:
                     moves.append(
@@ -282,7 +282,7 @@ class Knight(Figure):
             if not chessboard.is_inside(nx, ny):
                 continue
 
-            target: Figure = board[ny][ny]
+            target: Figure = board[ny][nx]
 
             if target == 0:
                 moves.append(
