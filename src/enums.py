@@ -22,6 +22,7 @@ class MoveResult(Enum):
     CELL_OCCUPIED = auto()
     CHECK = auto()
     CHECKMATE = auto()
+    ERROR = auto()
 
 class MoveSpecial(Enum):
     CASTLE_KINGSIDE = auto() # O-O

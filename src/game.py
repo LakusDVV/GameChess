@@ -169,7 +169,13 @@ class Game:
 
 
         if not self.mouse_first_right_click:
-            self.selected_piece = board[board_y][board_x]
+            piece = board[board_y][board_x]
+
+            if piece == 0:
+                print("Cell is empty")
+                return
+
+            self.selected_piece = piece
 
             if self.selected_piece.color == self.has_move:
 
@@ -193,13 +199,21 @@ class Game:
     def _first_click(self, *, piece):
         if not piece == 0:
             moves = piece.get_moves(chessboard=self.chessboard)
-            right_moves = self.filter_moves(moves=moves)
-            self.render.change_highlighting(new_moves=right_moves)
+            status = self.filter_moves(moves=moves)
 
-            self.available_moves = right_moves
-            return MoveResult.OK
-        else:
+            if status:
+                right_moves = status["right_moves"]
+                if not right_moves:
+                    return MoveResult.CHECK
+                else:
+                    self.render.change_highlighting(new_moves=right_moves)
+                    self.available_moves = right_moves
+                    return MoveResult.OK
             return MoveResult.INVALID_MOVE
+
+
+        else:
+            return MoveResult.ERROR
 
 
     def _second_click(self, *, board_x, board_y):
@@ -235,20 +249,23 @@ class Game:
         return None
 
 
-    def filter_moves(self, moves: list):
-        right_moves: list[Move] = []
+    def filter_moves(self, moves: list) -> dict:
+        dic: dict = {
+            "right_moves": [],
+            "moves_and_statuses": {}
+        }
 
         if moves:
-
             for move in moves:
                 status = self.filter_move(move)
 
+                dic["moves_and_statuses"][move] = status
                 if status == MoveResult.OK:
-                    right_moves.append(move)
+                    dic["right_moves"].append(move)
 
 
-            return right_moves
-        return []
+            return dic
+        return {}
 
 
     def filter_move(self, move):
@@ -278,6 +295,8 @@ class Game:
         board = self.chessboard.get_board()
         new_x, new_y = move.to_pos
 
+        rank = move.piece.direction
+
         match move.special:
             case MoveSpecial.CAPTURE:
                 captured_piece = board[new_y][new_x]
@@ -294,8 +313,10 @@ class Game:
                 rook_to = (new_y, new_x + 1)
 
             case MoveSpecial.EN_PASSANT:
-                captured_piece = self.chessboard.get_figure(prev_en_passant)
-                captured_pos = self.chessboard.en_passant_target
+                prev_en_pas_x, prev_en_pas_y = prev_en_passant
+                prev_en_pas_y -= rank
+                captured_piece = self.chessboard.get_piece(cord=(prev_en_pas_x, prev_en_pas_y))
+                captured_pos = (prev_en_pas_x, prev_en_pas_y)
 
 
         mr = MoveRecord(

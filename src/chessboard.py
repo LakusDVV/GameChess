@@ -99,7 +99,7 @@ class ChessBoard:
 
         dif = abs(from_y - to_y)
         if isinstance(piece, Pawn) and dif == 2:
-            self.en_passant_target = (from_x, (from_y + to_y) / 2)
+            self.en_passant_target = (from_x, int((from_y + to_y) / 2))
 
         else:
             self.en_passant_target = None
