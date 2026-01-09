@@ -98,13 +98,13 @@ class Game:
             status = self.chessboard.add_figure(x=x, y=y, figure=rook)
             view_status_add_figure(status)
 
-        # Creates pawns
-        white_pawn_texture = self.texture_manager.get_texture("white_pawn")
-        x, y = None, 1
-        for x in range(self.rows):
-            pawn = shapes.Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
-            view_status_add_figure(status)
+        # # Creates pawns
+        # white_pawn_texture = self.texture_manager.get_texture("white_pawn")
+        # x, y = None, 1
+        # for x in range(self.rows):
+        #     pawn = shapes.Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
+        #     status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+        #     view_status_add_figure(status)
 
 
     def create_black_figures(self):
@@ -147,17 +147,24 @@ class Game:
             status = self.chessboard.add_figure(x=x, y=y, figure=rook)
             view_status_add_figure(status)
 
-        # Creates pawns
-        black_pawn_texture = self.texture_manager.get_texture("black_pawn")
-        x, y = None, 6
-        for x in range(self.rows):
-            pawn = shapes.Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
-            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
-            view_status_add_figure(status)
+        # # Creates pawns
+        # black_pawn_texture = self.texture_manager.get_texture("black_pawn")
+        # x, y = None, 6
+        # for x in range(self.rows):
+        #     pawn = shapes.Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
+        #     status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+        #     view_status_add_figure(status)
 
 
     def after_move(self):
-        self.has_move = PieceColor.WHITE if self.has_move == PieceColor.BLACK else PieceColor.BLACK
+        self.has_move = self.has_move.opposite()
+
+        kx, ky = self.chessboard.find_king(color=self.has_move)
+        if self.chessboard.is_square_attacked(kx=kx, ky=ky, enemy=self.has_move.opposite()):
+            self.render.change_check_data(new_pos=(kx, ky))
+
+        else:
+            self.render.clear_check_data()
 
 
     def mouse_right_button(self, mouse_x, mouse_y):
@@ -191,6 +198,9 @@ class Game:
         elif self.mouse_first_right_click:
             status = self._second_click(board_x=board_x, board_y=board_y)
 
+            if status == MoveResult.OK:
+                self.after_move()
+
         print(self.chessboard)
 
 
@@ -221,7 +231,7 @@ class Game:
 
         if move:
             self.make_move(move)
-            self.after_move()
+
             self.render.clear_highlighting()
             self.mouse_first_right_click = False
             return MoveResult.OK

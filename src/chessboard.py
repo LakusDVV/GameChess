@@ -198,8 +198,7 @@ class ChessBoard:
         return False
 
 
-    def has_piece(self, x: int, y: int, piece_type: type, color: PieceColor
-    ) -> bool:
+    def has_piece(self, x: int, y: int, piece_type: type, color: PieceColor) -> bool:
         if not self.is_inside(x, y):
             return False
 
@@ -216,13 +215,23 @@ class ChessBoard:
         for dx, dy in deltas:
             nx, ny = kx + dx, ky + dy
             while True:
+
                 if not self.is_inside(nx, ny):
                     break
+
                 cord: tuple[int, int] = (nx, ny)
                 piece: Figure = self.get_piece(cord=cord)
 
+
+
                 if piece:
-                    return piece.color == enemy_color and isinstance(piece, expected_types)
+                    if piece.color != enemy_color:
+                        break
+
+                    return isinstance(piece, expected_types)
+
+
+
                 nx, ny = nx + dx, ny + dy
         return False
 

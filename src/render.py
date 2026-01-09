@@ -77,9 +77,14 @@ class Render:
         self.texture_manager= texture_manager
         self.light_color = rl.Color(r=240, g=217, b=181, a=255)
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
+        self.check_color = rl.Color(r=230, g=41, b=55, a=120)
         self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
 
         self.highlighting_list: list[tuple[int, int]] = []
+        self.check_data: dict = {
+            "has_data": False,
+            "data": ()
+        }
 
 
     def get_tile_color(self, x: int, y: int) -> rl.Color:
@@ -103,6 +108,7 @@ class Render:
         self.draw_tiles()
         self.draw_figures()
         self.draw_highlighting()
+        self.draw_check_king()
 
         rl.end_drawing()
 
@@ -159,6 +165,28 @@ class Render:
                     pos_y=ty,
                     tint=rl.WHITE
                 )
+
+
+    def draw_check_king(self) -> None:
+        if self.check_data["has_data"]:
+            x, y = self.check_data["data"]
+            rl.draw_rectangle(
+                pos_x=x * self.tile_size,
+                pos_y=y * self.tile_size,
+                width=self.tile_size,
+                height=self.tile_size,
+                color=self.check_color
+            )
+
+
+    def change_check_data(self, new_pos: tuple[int, int]):
+        self.check_data["data"] = new_pos
+        self.check_data["has_data"] = True
+
+
+    def clear_check_data(self):
+        self.check_data["data"] = ()
+        self.check_data["has_data"] = False
 
 
     def change_highlighting(self, new_moves: list[Move]):
