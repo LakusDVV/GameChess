@@ -6,8 +6,6 @@ from typing import Optional, TYPE_CHECKING
 
 
 
-
-
 class ChessBoard:
     def __init__(self):
         self.rows = 8
@@ -21,7 +19,6 @@ class ChessBoard:
         self.castling_rights: CastlingRights = CastlingRights()
         self.en_passant_target: Optional[tuple[int, int]] = None
         self.side_to_move: PieceColor = PieceColor.WHITE
-
 
 
     def get_board(self):
@@ -42,7 +39,6 @@ class ChessBoard:
         return self._figures
 
 
-
     def apply_move(self, move: MoveRecord):
         from_x, from_y = move.from_pos
         to_x, to_y = move.to_pos
@@ -60,8 +56,15 @@ class ChessBoard:
         if move.captured_piece:
             self._figures.remove(move.captured_piece)
 
+        if move.rook:
+            rook = move.rook
+            rook_from_x, rook_from_y = move.rook_from
+            rook_to_x, rook_to_y = move.rook_to
 
+            self._board[rook_from_y][rook_from_x] = 0
+            self._board[rook_to_y][rook_to_x] = rook
 
+            rook.cord = (rook_to_x, rook_to_y)
 
 
     def change_castling_rights(self, record: MoveRecord):
@@ -105,9 +108,6 @@ class ChessBoard:
             self.en_passant_target = None
 
 
-
-
-
     def undo(self, move: MoveRecord):
         from_x, from_y = move.from_pos
         to_x, to_y = move.to_pos
@@ -122,6 +122,17 @@ class ChessBoard:
         else:
             self._board[to_y][to_x] = move.captured_piece
             self._figures.append(move.captured_piece)
+
+
+        if move.rook:
+            rook = move.rook
+            rook_from_x, rook_from_y = move.rook_from
+            rook_to_x, rook_to_y = move.rook_to
+
+            self._board[rook_to_y][rook_to_x] = 0
+            self._board[rook_from_y][rook_from_x] = rook
+
+            rook.cord = (rook_from_x, rook_from_y)
 
         piece.cord = move.from_pos
 
@@ -143,18 +154,15 @@ class ChessBoard:
         return 0 <= x < self.rows and 0 <= y < self.cols
 
 
-
     def king_is_check(self, color: PieceColor):
 
         kx, ky = self.find_king(color=color)
         enemy = color.opposite()
 
-        return self.is_square_attacked(enemy=enemy, kx=kx, ky=ky)
+        return self.is_square_attacked(enemy=enemy, x=kx, y=ky)
 
 
-
-
-    def is_square_attacked(self, kx, ky, enemy):
+    def is_square_attacked(self, x, y, enemy):
         ray_attack = {
             (Rook, Queen): [
                 (1, 0), (0, 1), (-1, 0), (0, -1)
@@ -171,8 +179,8 @@ class ChessBoard:
 
         for ex, deltas in ray_attack.items():
             if self.ray_attack(
-                    kx=kx,
-                    ky=ky,
+                    x=x,
+                    y=y,
                     enemy_color=enemy,
                     expected_types=ex,
                     deltas=deltas
@@ -181,8 +189,8 @@ class ChessBoard:
 
         for ex, deltas in single_attack.items():
             if self.single_attack(
-                    kx=kx,
-                    ky=ky,
+                    x=x,
+                    y=y,
                     enemy_color=enemy,
                     expected_types=ex,
                     deltas=deltas
@@ -192,7 +200,7 @@ class ChessBoard:
         direction = -1 if enemy == PieceColor.WHITE else 1
 
         for dx in (-1, 1):
-            if self.has_piece(kx + dx, ky - direction, Pawn, enemy):
+            if self.has_piece(x + dx, y - direction, Pawn, enemy):
                 return True
 
         return False
@@ -209,11 +217,11 @@ class ChessBoard:
         return isinstance(piece, piece_type) and piece.color == color
 
 
-    def ray_attack(self, enemy_color, expected_types, deltas, kx, ky):
+    def ray_attack(self, enemy_color, expected_types, deltas, x, y):
         deltas = deltas
 
         for dx, dy in deltas:
-            nx, ny = kx + dx, ky + dy
+            nx, ny = x + dx, y + dy
             while True:
 
                 if not self.is_inside(nx, ny):
@@ -236,11 +244,11 @@ class ChessBoard:
         return False
 
 
-    def single_attack(self, enemy_color, expected_types, deltas, kx, ky):
+    def single_attack(self, enemy_color, expected_types, deltas, x, y):
         deltas = deltas
 
         for dx, dy in deltas:
-            nx, ny = kx + dx, ky + dy
+            nx, ny = x + dx, y + dy
 
             if not self.is_inside(nx, ny):
                 continue

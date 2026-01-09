@@ -198,14 +198,14 @@ class King(Figure):
         # kingside castling
         if chessboard.castling_rights.can_castle_kingside(self.color):
             if (
-                    chessboard.is_empty(5, rank) and
-                    chessboard.is_empty(6, rank)
+                    chessboard.is_empty(1, rank) and
+                    chessboard.is_empty(2, rank)
             ):
                 moves.append(
                     Move(
                         piece=self,
                         from_pos=self.cord,
-                        to_pos=(7, rank),
+                        to_pos=(1, rank),
                         special=MoveSpecial.CASTLE_KINGSIDE
                     )
                 )
@@ -214,15 +214,14 @@ class King(Figure):
         # queenside castling
         if chessboard.castling_rights.can_castle_queenside(self.color):
             if (
-                    chessboard.is_empty(1, rank) and
-                    chessboard.is_empty(2, rank) and
-                    chessboard.is_empty(3, rank)
+                    chessboard.is_empty(4, rank) and
+                    chessboard.is_empty(5, rank)
             ):
                 moves.append(
                     Move(
                         piece=self,
                         from_pos=self.cord,
-                        to_pos=(0, rank),
+                        to_pos=(5, rank),
                         special=MoveSpecial.CASTLE_QUEENSIDE
                     )
                 )
