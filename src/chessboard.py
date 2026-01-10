@@ -1,8 +1,8 @@
-from shapes import King, Figure, Rook, Pawn, Knight, Queen, Bishop
+from src.shapes import King, Figure, Rook, Pawn, Knight, Queen, Bishop
 
 from src.enums import MoveResult, PieceColor
 from src.dataclass import MoveRecord, CastlingRights
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 
 
@@ -35,7 +35,7 @@ class ChessBoard:
         return MoveResult.CELL_OCCUPIED
 
 
-    def get_figures(self):
+    def get_figures(self) -> list[Figure]:
         figures = []
         for y in self._board:
             for x in y:
@@ -237,9 +237,10 @@ class ChessBoard:
                     if piece.color != enemy_color:
                         break
 
-                    return isinstance(piece, expected_types)
-
-
+                    if isinstance(piece, expected_types):
+                        return True
+                    else:
+                        break
 
                 nx, ny = nx + dx, ny + dy
         return False

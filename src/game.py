@@ -1,12 +1,10 @@
 import raylibpy as rl
-import shapes
-
-
-from src.chessboard import ChessBoard
 from typing import Optional
-from src.enums import MoveResult, PieceColor, MoveSpecial
+from src.chessboard import ChessBoard
+from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus
 from src.render import TextureManager, Render
 from src.dataclass import Move, MoveRecord, CastlingRights, History
+from src.shapes import Figure, King, Queen, Bishop, Knight, Rook, Pawn
 
 
 
@@ -24,7 +22,7 @@ class Game:
         self.create_figures()
 
         self.mouse_first_right_click = False
-        self.selected_piece: shapes.Figure
+        self.selected_piece: Figure
 
         self.has_move: PieceColor = PieceColor.WHITE
         self.available_moves = []
@@ -61,14 +59,14 @@ class Game:
         # Create king
         self.create_white_king()
 
-        # # Create queen
-        # self.create_white_queen()
-        #
-        # # Creates bishops
-        # self.creates_white_bishops()
-        #
-        # # Creates knights
-        # self.creates_white_knights()
+        # Create queen
+        self.create_white_queen()
+
+        # Creates bishops
+        self.creates_white_bishops()
+
+        # Creates knights
+        self.creates_white_knights()
 
         # Creates rooks
         self.creates_white_rooks()
@@ -81,7 +79,7 @@ class Game:
         # Create king
         white_king_texture = self.texture_manager.get_texture("white_king")
         x, y = 3, 0
-        king = shapes.King(x=x, y=y, texture=white_king_texture, color=PieceColor.WHITE)
+        king = King(x=x, y=y, texture=white_king_texture, color=PieceColor.WHITE)
         status = self.chessboard.add_figure(x=x, y=y, figure=king)
         view_status_add_figure(status)
 
@@ -90,7 +88,7 @@ class Game:
         # Create queen
         white_queen_texture = self.texture_manager.get_texture("white_queen")
         x, y = 4, 0
-        queen = shapes.Queen(x=x, y=y, texture=white_queen_texture, color=PieceColor.WHITE)
+        queen = Queen(x=x, y=y, texture=white_queen_texture, color=PieceColor.WHITE)
         status = self.chessboard.add_figure(x=x, y=y, figure=queen)
         view_status_add_figure(status)
 
@@ -99,7 +97,7 @@ class Game:
         white_bishop_texture = self.texture_manager.get_texture("white_bishop")
         x, y = None, 0
         for x in (2, 5):
-            bishop = shapes.Bishop(x=x, y=y, texture=white_bishop_texture, color=PieceColor.WHITE)
+            bishop = Bishop(x=x, y=y, texture=white_bishop_texture, color=PieceColor.WHITE)
             status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
             view_status_add_figure(status)
 
@@ -108,7 +106,7 @@ class Game:
         white_knight_texture = self.texture_manager.get_texture("white_knight")
         x, y = None, 0
         for x in (1, 6):
-            knight = shapes.Knight(x=x, y=y, texture=white_knight_texture, color=PieceColor.WHITE)
+            knight = Knight(x=x, y=y, texture=white_knight_texture, color=PieceColor.WHITE)
             status = self.chessboard.add_figure(x=x, y=y, figure=knight)
             view_status_add_figure(status)
 
@@ -117,7 +115,7 @@ class Game:
         white_rook_texture = self.texture_manager.get_texture("white_rook")
         x, y = None, 0
         for x in (0, 7):
-            rook = shapes.Rook(x=x, y=y, texture=white_rook_texture, color=PieceColor.WHITE)
+            rook = Rook(x=x, y=y, texture=white_rook_texture, color=PieceColor.WHITE)
             status = self.chessboard.add_figure(x=x, y=y, figure=rook)
             view_status_add_figure(status)
 
@@ -126,7 +124,7 @@ class Game:
         white_pawn_texture = self.texture_manager.get_texture("white_pawn")
         x, y = None, 1
         for x in range(self.rows):
-            pawn = shapes.Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
+            pawn = Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
             status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
             view_status_add_figure(status)
 
@@ -136,14 +134,14 @@ class Game:
         # Create king
         self.create_black_king()
 
-        # # Create queen
-        # self.create_black_queen()
-        #
-        # # Creates bishops
-        # self.creates_black_bishops()
-        #
-        # # Creates knights
-        # self.creates_black_knights()
+        # Create queen
+        self.create_black_queen()
+
+        # Creates bishops
+        self.creates_black_bishops()
+
+        # Creates knights
+        self.creates_black_knights()
 
         # Creates rooks
         self.creates_black_rooks()
@@ -156,7 +154,7 @@ class Game:
         # Create king
         black_king_texture = self.texture_manager.get_texture("black_king")
         x, y = 3, 7
-        king = shapes.King(x=x, y=y, texture=black_king_texture, color=PieceColor.BLACK)
+        king = King(x=x, y=y, texture=black_king_texture, color=PieceColor.BLACK)
         status = self.chessboard.add_figure(x=x, y=y, figure=king)
         view_status_add_figure(status)
 
@@ -165,7 +163,7 @@ class Game:
         # Create queen
         black_queen_texture = self.texture_manager.get_texture("black_queen")
         x, y = 4, 7
-        queen = shapes.Queen(x=x, y=y, texture=black_queen_texture, color=PieceColor.BLACK)
+        queen = Queen(x=x, y=y, texture=black_queen_texture, color=PieceColor.BLACK)
         status = self.chessboard.add_figure(x=x, y=y, figure=queen)
         view_status_add_figure(status)
 
@@ -175,7 +173,7 @@ class Game:
         black_bishop_texture = self.texture_manager.get_texture("black_bishop")
         x, y = None, 7
         for x in (2, 5):
-            bishop = shapes.Bishop(x=x, y=y, texture=black_bishop_texture, color=PieceColor.BLACK)
+            bishop = Bishop(x=x, y=y, texture=black_bishop_texture, color=PieceColor.BLACK)
             status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
             view_status_add_figure(status)
 
@@ -185,7 +183,7 @@ class Game:
         black_knight_texture = self.texture_manager.get_texture("black_knight")
         x, y = None, 7
         for x in (1, 6):
-            knight = shapes.Knight(x=x, y=y, texture=black_knight_texture, color=PieceColor.BLACK)
+            knight = Knight(x=x, y=y, texture=black_knight_texture, color=PieceColor.BLACK)
             status = self.chessboard.add_figure(x=x, y=y, figure=knight)
             view_status_add_figure(status)
 
@@ -195,7 +193,7 @@ class Game:
         black_rook_texture = self.texture_manager.get_texture("black_rook")
         x, y = None, 7
         for x in (0, 7):
-            rook = shapes.Rook(x=x, y=y, texture=black_rook_texture, color=PieceColor.BLACK)
+            rook = Rook(x=x, y=y, texture=black_rook_texture, color=PieceColor.BLACK)
             status = self.chessboard.add_figure(x=x, y=y, figure=rook)
             view_status_add_figure(status)
 
@@ -205,7 +203,7 @@ class Game:
         black_pawn_texture = self.texture_manager.get_texture("black_pawn")
         x, y = None, 6
         for x in range(self.rows):
-            pawn = shapes.Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
+            pawn = Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
             status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
             view_status_add_figure(status)
 
@@ -221,6 +219,10 @@ class Game:
 
         else:
             self.render.clear_check_data()
+
+        game_status = self.this_end(self.has_move)
+        print(game_status)
+
 
 
     def mouse_right_button(self, mouse_x, mouse_y):
@@ -304,8 +306,38 @@ class Game:
         self.available_moves.clear()
 
 
-    def this_end(self):
-        pass
+    def this_end(self, color) -> GameStatus:
+        board = self.chessboard.get_board()
+        king_pos = self.chessboard.find_king(color=color)
+        kx, ky = king_pos
+        king: Figure = board[ky][kx]
+        king_moves = king.get_moves(chessboard=self.chessboard)
+        right_moves = self.filter_moves(king_moves)["right_moves"]
+
+        status = GameStatus.IN_PROGRESS
+
+        # If king don't have moves
+        if not right_moves:
+            figures = self.chessboard.get_figures()
+
+            for fig in figures:
+                if fig.color == color:
+                    moves = fig.get_moves(chessboard=self.chessboard)
+                    right_moves = self.filter_moves(moves)["right_moves"]
+
+
+                    # If any figure can move
+                    if right_moves:
+                        break
+            # If all figures cannot make move
+            else:
+                king_is_check = self.chessboard.king_is_check(color=color)
+                # Checkmate
+                if king_is_check:
+                    status = GameStatus.CHECKMATE
+                else:
+                    status = GameStatus.PAT
+        return status
 
 
     def find_move_to(self, x, y) -> Optional[Move]:
@@ -349,6 +381,7 @@ class Game:
             return MoveResult.CHECK
         return MoveResult.OK
 
+
     def can_king_castle(self, *, move_record: MoveRecord):
         from_x, _ = move_record.from_pos
         to_x, _ = move_record.to_pos
@@ -366,10 +399,10 @@ class Game:
 
     def move_to_move_record(self, move: Move):
 
-        captured_piece: Optional[shapes.Figure] = None
+        captured_piece: Optional[Figure] = None
         captured_pos: Optional[tuple[int, int]] = None
 
-        rook: Optional[shapes.Figure] = None
+        rook: Optional[Figure] = None
         rook_from: Optional[tuple[int, int]] = None
         rook_to: Optional[tuple[int, int]] = None
 

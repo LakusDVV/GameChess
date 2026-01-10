@@ -30,3 +30,8 @@ class MoveSpecial(Enum):
     EN_PASSANT = auto()
     PROMOTION_PAWN = auto()
     CAPTURE = auto()
+
+class GameStatus(Enum):
+    IN_PROGRESS = auto()
+    PAT = auto()
+    CHECKMATE = auto()

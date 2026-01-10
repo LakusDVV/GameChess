@@ -1,8 +1,10 @@
+import os
 import raylibpy as rl
+from typing import Optional, TYPE_CHECKING
 from src.paths import IMAGES_DIR
 from src.dataclass import Move
-from typing import Optional, TYPE_CHECKING
-import os
+
+
 
 if TYPE_CHECKING:
     from src.chessboard import ChessBoard
