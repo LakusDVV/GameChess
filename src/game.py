@@ -304,6 +304,10 @@ class Game:
         self.available_moves.clear()
 
 
+    def this_end(self):
+        pass
+
+
     def find_move_to(self, x, y) -> Optional[Move]:
         for move in self.available_moves:
             if move.to_pos == (x, y):

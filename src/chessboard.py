@@ -11,14 +11,12 @@ class ChessBoard:
         self.rows = 8
         self.cols = 8
 
-
-        self._changes = []
-        self._figures: list[Figure] = []
+        self.kings: dict[PieceColor, King] = {}
         self._board = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
 
         self.castling_rights: CastlingRights = CastlingRights()
         self.en_passant_target: Optional[tuple[int, int]] = None
-        self.side_to_move: PieceColor = PieceColor.WHITE
+
 
 
     def get_board(self):
@@ -29,14 +27,21 @@ class ChessBoard:
         if not self._board[y][x]: #If cell is empty
 
             self._board[y][x] = figure
-            self._figures.append(figure)
+
+            if isinstance(figure, King):
+                self.kings[figure.color] = figure
             return MoveResult.OK
 
         return MoveResult.CELL_OCCUPIED
 
 
     def get_figures(self):
-        return self._figures
+        figures = []
+        for y in self._board:
+            for x in y:
+                if not x == 0:
+                    figures.append(x)
+        return figures
 
 
     def apply_move(self, move: MoveRecord):
@@ -53,8 +58,6 @@ class ChessBoard:
 
         self.change_castling_rights(move)
 
-        if move.captured_piece:
-            self._figures.remove(move.captured_piece)
 
         if move.rook:
             rook = move.rook
@@ -121,8 +124,6 @@ class ChessBoard:
             self._board[to_y][to_x] = 0
         else:
             self._board[to_y][to_x] = move.captured_piece
-            self._figures.append(move.captured_piece)
-
 
         if move.rook:
             rook = move.rook
@@ -261,11 +262,8 @@ class ChessBoard:
 
 
     def find_king(self, color: PieceColor) -> tuple[int, int]:
-        for fig in self._figures:
-            if isinstance(fig, King) and fig.color == color:
-                return fig.cord
-
-        raise Exception("King doesn't find")
+        king = self.kings[color]
+        return king.cord
 
 
     def __str__(self):
