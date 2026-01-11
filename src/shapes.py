@@ -17,6 +17,8 @@ class Figure:
 
 
         self.direction = 1 if self.color == PieceColor.WHITE else -1 # The bug,  because my board
+        self.start_pos = 1 if self.color == PieceColor.WHITE else 6
+
 
 
     def draw(self):
@@ -76,6 +78,10 @@ class Figure:
 
         return moves
 
+    @property
+    def texture_key(self) -> str:
+        raise NotImplementedError
+
 
 
 
@@ -87,7 +93,7 @@ class Pawn(Figure):
         chessboard = chessboard
         board = chessboard.get_board()
 
-        start_pos = 1 if self.color == PieceColor.WHITE else 6
+
 
         if chessboard.is_inside(x, y + self.direction):
             if chessboard.is_empty(x, y + self.direction):
@@ -101,7 +107,7 @@ class Pawn(Figure):
                 )
 
                 # two moves forward, if the first move
-                if y == start_pos:
+                if y == self.start_pos:
                     if chessboard.is_empty(x, y + 2 * self.direction):
 
                         moves.append(
@@ -143,6 +149,11 @@ class Pawn(Figure):
                 )
 
         return moves
+
+
+    @property
+    def texture_key(self) -> str:
+        return "pawn"
 
 
     def __str__(self):
@@ -231,6 +242,10 @@ class King(Figure):
         return moves
 
 
+    def texture_key(self) -> str:
+        return "king"
+
+
     def __str__(self):
         return "♚" if self.color == "white" else "♔"
 
@@ -239,6 +254,10 @@ class King(Figure):
 class Queen(Figure):
 
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+
+    def texture_key(self) -> str:
+        return "queen"
 
 
     def __str__(self):
@@ -250,6 +269,10 @@ class Rook(Figure):
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
 
+    def texture_key(self) -> str:
+        return "rook"
+
+
     def __str__(self):
         return "♜" if self.color == "white" else "♖"
 
@@ -258,6 +281,9 @@ class Bishop(Figure):
 
     _deltas = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
+
+    def texture_key(self) -> str:
+        return "bishop"
 
     def __str__(self):
         return "♝" if self.color == "white" else "♗"
@@ -305,6 +331,9 @@ class Knight(Figure):
 
         return moves
 
+
+    def texture_key(self) -> str:
+        return "knight"
 
     def __str__(self):
         return "♞" if self.color == "white" else "♘"

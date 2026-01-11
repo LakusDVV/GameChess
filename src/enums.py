@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
 class PieceColor(Enum):
-    BLACK = auto()
-    WHITE = auto()
+    BLACK = "black"
+    WHITE = "white"
 
     def opposite(self) -> "PieceColor":
         return PieceColor.WHITE if self is PieceColor.BLACK else PieceColor.BLACK

@@ -69,6 +69,11 @@ class ChessBoard:
 
             rook.cord = (rook_to_x, rook_to_y)
 
+        if move.promotion_pawn:
+
+            self._board[to_y][to_x] =
+
+
 
     def change_castling_rights(self, record: MoveRecord):
         piece = record.piece

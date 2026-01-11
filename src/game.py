@@ -26,8 +26,9 @@ class Game:
 
         self.has_move: PieceColor = PieceColor.WHITE
         self.available_moves = []
+        self.promotion = False
 
-        self.history: list[MoveRecord] = []
+        self.history: History = History()
 
 
     def run(self):
@@ -208,9 +209,19 @@ class Game:
             view_status_add_figure(status)
 
 
-
-
     def after_move(self):
+        if self.promotion:
+            record = self.history.top()
+
+            self.render.change_promotion_pawn_data(
+                color=record.piece.color,
+                cord=record.to_pos,
+                direction=record.piece.direction
+            )
+
+            print("Promotion")
+            return
+
         self.has_move = self.has_move.opposite()
 
         kx, ky = self.chessboard.find_king(color=self.has_move)
@@ -230,6 +241,38 @@ class Game:
         board_y = mouse_y // self.tile_size
 
         board = self.chessboard.get_board()
+        if self.promotion:
+            record = self.history.top()
+            try:
+                fig = self.select_promotion_figure(
+                    cord=record.to_pos,
+                    direction=record.piece.direction,
+                    board_x=board_x,
+                    board_y=board_y
+                )
+                self.chessboard.undo(record)
+                self.history.pop()
+                color = record.piece.color
+                texture = self.texture_manager.get_texture(f"{color}_{record.piece.texture_key}")
+
+                x, y = record.to_pos
+
+                figure = fig(x=x, y=y, texture=texture, color=record.piece.color)
+
+
+                record.promotion_pawn = figure
+
+                self.chessboard.apply_move(record)
+                self.history.push(record)
+
+
+
+            except Exception():
+                self.render.clear_promotion_pawn_data()
+                print("Error in promotion")
+                self.chessboard.undo(record)
+                self.history.pop()
+                return
 
 
 
@@ -283,10 +326,18 @@ class Game:
 
 
     def _second_click(self, *, board_x, board_y):
-        move = self.find_move_to(x=board_x, y=board_y)
+        move = self.find_move_to(to_x=board_x, to_y=board_y)
 
         if move:
-            self.make_move(move)
+            record = self.move_to_move_record(move=move)
+            last_line = 0 if record.piece.color == PieceColor.WHITE else 1
+            to_x, to_y = record.to_pos
+            if isinstance(record.piece, Pawn) and to_y == last_line:
+                self.promotion = True
+
+
+
+            self.make_move(record)
 
             self.render.clear_highlighting()
             self.mouse_first_right_click = False
@@ -297,12 +348,30 @@ class Game:
             return MoveResult.INVALID_MOVE
 
 
-    def make_move(self, move):
-        record = self.move_to_move_record(move=move)
+    def select_promotion_figure(self, cord, direction, board_x, board_y):
+
+        x, y = cord
+
+        dict_cord = {
+            cord: Queen,
+            (x, y + direction * 1): Knight,
+            (x, y + direction * 2): Rook,
+            (x, y + direction * 3): Bishop
+        }
+        if not (board_x, board_y) in dict_cord.keys():
+            raise Exception("Er")
+        fig = dict_cord[(board_x, board_y)]
+        return fig
+
+
+
+
+    def make_move(self, record: MoveRecord):
+
 
         self.chessboard.apply_move(record)
 
-        self.history.append(record)
+        self.history.push(record)
         self.available_moves.clear()
 
 
@@ -340,9 +409,9 @@ class Game:
         return status
 
 
-    def find_move_to(self, x, y) -> Optional[Move]:
+    def find_move_to(self, to_x, to_y) -> Optional[Move]:
         for move in self.available_moves:
-            if move.to_pos == (x, y):
+            if move.to_pos == (to_x, to_y):
                 return move
         return None
 
@@ -408,6 +477,7 @@ class Game:
 
         prev_castling_rights: CastlingRights = self.chessboard.castling_rights
         prev_en_passant: Optional[tuple[int, int]] = self.chessboard.en_passant_target
+
 
 
         board = self.chessboard.get_board()

@@ -53,11 +53,14 @@ class MoveRecord:
     prev_castling_rights: CastlingRights = None
     prev_en_passant: Optional[tuple[int, int]] = None
 
+    promotion_pawn: Optional["Figure"] = None
+
 
 
 @dataclass
 class History:
-    _history: list[MoveRecord]
+    def __init__(self):
+        self._history: list[MoveRecord] = []
 
     def push(self, item) -> None:
         self._history.append(item)

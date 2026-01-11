@@ -3,6 +3,7 @@ import raylibpy as rl
 from typing import Optional, TYPE_CHECKING
 from src.paths import IMAGES_DIR
 from src.dataclass import Move
+from src.enums import PieceColor
 
 
 
@@ -81,11 +82,21 @@ class Render:
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
         self.check_color = rl.Color(r=230, g=41, b=55, a=120)
         self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
+        self.select_color = rl.Color(r=160, g=160, b=160, a=255)
 
         self.highlighting_list: list[tuple[int, int]] = []
         self.check_data: dict = {
             "has_data": False,
             "data": ()
+        }
+        self.promotion_pawn_data = {
+            "has_data": False,
+            "data": {
+                "color": PieceColor.WHITE,
+                "direction": 0, # -1 or 1
+                "cord": (0, 0) # (x, y)
+            }
+
         }
 
 
@@ -111,6 +122,7 @@ class Render:
         self.draw_figures()
         self.draw_highlighting()
         self.draw_check_king()
+        self.draw_select_promotion_pawn()
 
         rl.end_drawing()
 
@@ -179,6 +191,64 @@ class Render:
                 height=self.tile_size,
                 color=self.check_color
             )
+
+
+    def draw_select_promotion_pawn(self) -> None:
+        if self.promotion_pawn_data["has_data"]:
+            data = self.promotion_pawn_data["data"]
+
+            if data["color"] == PieceColor.WHITE:
+                queen_t = self.texture_manager.get_texture("white_queen")
+                knight_t = self.texture_manager.get_texture("white_knight")
+                rook_t = self.texture_manager.get_texture("white_rook")
+                bishop_t = self.texture_manager.get_texture("white_bishop")
+            else:
+                queen_t = self.texture_manager.get_texture("black_queen")
+                knight_t = self.texture_manager.get_texture("black_knight")
+                rook_t = self.texture_manager.get_texture("black_rook")
+                bishop_t = self.texture_manager.get_texture("black_bishop")
+
+            x, y = data["cord"]
+            direct = data["direction"]
+
+
+            rl.draw_texture(
+                texture=queen_t,
+                pos_x=x * self.tile_size,
+                pos_y=y * self.tile_size,
+                tint=rl.WHITE
+            )
+
+            rl.draw_texture(
+                texture=knight_t,
+                pos_x=x * self.tile_size,
+                pos_y=(y + direct * 1) * self.tile_size,
+                tint=rl.WHITE
+            )
+
+            rl.draw_texture(
+                texture=rook_t,
+                pos_x=x * self.tile_size,
+                pos_y=(y + direct * 2) * self.tile_size,
+                tint=rl.WHITE
+            )
+            rl.draw_texture(
+                texture=bishop_t,
+                pos_x=x * self.tile_size,
+                pos_y=(y + direct * 3) * self.tile_size,
+                tint=rl.WHITE
+            )
+
+
+    def change_promotion_pawn_data(self, color: PieceColor, direction: int, cord: tuple[int, int]):
+        self.promotion_pawn_data["has_data"] = True
+        self.promotion_pawn_data["data"]["color"] = color
+        self.promotion_pawn_data["data"]["direction"] = direction
+        self.promotion_pawn_data["data"]["cord"] = cord
+
+
+    def clear_promotion_pawn_data(self):
+        self.promotion_pawn_data["has_data"] = False
 
 
     def change_check_data(self, new_pos: tuple[int, int]):
