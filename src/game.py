@@ -60,20 +60,20 @@ class Game:
         # Create king
         self.create_white_king()
 
-        # Create queen
-        self.create_white_queen()
+        # # Create queen
+        # self.create_white_queen()
+        #
+        # # Creates bishops
+        # self.creates_white_bishops()
+        #
+        # # Creates knights
+        # self.creates_white_knights()
+        #
+        # # Creates rooks
+        # self.creates_white_rooks()
 
-        # Creates bishops
-        self.creates_white_bishops()
-
-        # Creates knights
-        self.creates_white_knights()
-
-        # Creates rooks
-        self.creates_white_rooks()
-
-        # # Creates pawns
-        # self.creates_white_pawns()
+        # Creates pawns
+        self.creates_white_pawns()
 
 
     def create_white_king(self):
@@ -135,20 +135,20 @@ class Game:
         # Create king
         self.create_black_king()
 
-        # Create queen
-        self.create_black_queen()
+        # # Create queen
+        # self.create_black_queen()
+        #
+        # # Creates bishops
+        # self.creates_black_bishops()
+        #
+        # # Creates knights
+        # self.creates_black_knights()
+        #
+        # # Creates rooks
+        # self.creates_black_rooks()
 
-        # Creates bishops
-        self.creates_black_bishops()
-
-        # Creates knights
-        self.creates_black_knights()
-
-        # Creates rooks
-        self.creates_black_rooks()
-
-        # # Creates pawns
-        # self.creates_black_pawns()
+        # Creates pawns
+        self.creates_black_pawns()
 
 
     def create_black_king(self):
@@ -330,7 +330,7 @@ class Game:
 
         if move:
             record = self.move_to_move_record(move=move)
-            last_line = 0 if record.piece.color == PieceColor.WHITE else 1
+            last_line = 7 if record.piece.color == PieceColor.WHITE else 0
             to_x, to_y = record.to_pos
             if isinstance(record.piece, Pawn) and to_y == last_line:
                 self.promotion = True

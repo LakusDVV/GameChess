@@ -50,6 +50,9 @@ class ChessBoard:
 
         piece: Figure = move.piece
 
+        if move.captured_piece:
+            capture_x, capture_y = move.captured_pos
+            self._board[capture_y][capture_x] = 0
 
         self._board[to_y][to_x] = piece
         self._board[from_y][from_x] = 0
@@ -57,6 +60,7 @@ class ChessBoard:
         piece.cord = move.to_pos
 
         self.change_castling_rights(move)
+
 
 
         if move.rook:
@@ -71,7 +75,7 @@ class ChessBoard:
 
         if move.promotion_pawn:
 
-            self._board[to_y][to_x] =
+            self._board[to_y][to_x] = move.promotion_pawn
 
 
 
