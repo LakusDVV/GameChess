@@ -222,20 +222,20 @@ class Render:
             rl.draw_texture(
                 texture=knight_t,
                 pos_x=x * self.tile_size,
-                pos_y=(y + direct * 1) * self.tile_size,
+                pos_y=(y - direct * 1) * self.tile_size,
                 tint=rl.WHITE
             )
 
             rl.draw_texture(
                 texture=rook_t,
                 pos_x=x * self.tile_size,
-                pos_y=(y + direct * 2) * self.tile_size,
+                pos_y=(y - direct * 2) * self.tile_size,
                 tint=rl.WHITE
             )
             rl.draw_texture(
                 texture=bishop_t,
                 pos_x=x * self.tile_size,
-                pos_y=(y + direct * 3) * self.tile_size,
+                pos_y=(y - direct * 3) * self.tile_size,
                 tint=rl.WHITE
             )
 

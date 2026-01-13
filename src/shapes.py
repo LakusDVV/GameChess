@@ -5,6 +5,7 @@ from src.render import RenderComponent
 class Figure:
 
     _deltas = None
+    texture_key: str
 
 
     def __init__(self, *, x: int, y: int, color: PieceColor, texture, tile_size=70):
@@ -86,7 +87,7 @@ class Figure:
 
 
 class Pawn(Figure):
-
+    texture_key = "pawn"
     def get_moves(self, chessboard):
         moves = []
         x, y = self.cord
@@ -153,7 +154,7 @@ class Pawn(Figure):
 
     @property
     def texture_key(self) -> str:
-        return "pawn"
+        return self.texture_key
 
 
     def __str__(self):
@@ -164,7 +165,7 @@ class Pawn(Figure):
 class King(Figure):
 
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
-
+    texture_key = "king"
 
     def get_moves(self, *, chessboard) -> list[Move]:
         moves = []
@@ -241,9 +242,9 @@ class King(Figure):
 
         return moves
 
-
-    def texture_key(self) -> str:
-        return "king"
+    # @property
+    # def texture_key(self) -> str:
+    #     return self.texture_key
 
 
     def __str__(self):
@@ -254,10 +255,11 @@ class King(Figure):
 class Queen(Figure):
 
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    texture_key = "queen"
 
-
-    def texture_key(self) -> str:
-        return "queen"
+    # @property
+    # def texture_key(self) -> str:
+    #     return
 
 
     def __str__(self):
@@ -267,10 +269,10 @@ class Queen(Figure):
 class Rook(Figure):
 
     _deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-
-    def texture_key(self) -> str:
-        return "rook"
+    texture_key = "rook"
+    # @property
+    # def texture_key(self) -> str:
+    #     return
 
 
     def __str__(self):
@@ -280,10 +282,11 @@ class Rook(Figure):
 class Bishop(Figure):
 
     _deltas = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    texture_key = "bishop"
 
-
-    def texture_key(self) -> str:
-        return "bishop"
+    # @property
+    # def texture_key(self) -> str:
+    #     return
 
     def __str__(self):
         return "♝" if self.color == "white" else "♗"
@@ -292,7 +295,7 @@ class Bishop(Figure):
 class Knight(Figure):
 
     _deltas = [(-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2), (-2, -1), (-2, 1)]
-
+    texture_key = "knight"
 
     def get_moves(self, *, chessboard) -> list[Move]:
         moves = []
@@ -331,9 +334,9 @@ class Knight(Figure):
 
         return moves
 
-
-    def texture_key(self) -> str:
-        return "knight"
+    # @property
+    # def texture_key(self) -> str:
+    #     return
 
     def __str__(self):
         return "♞" if self.color == "white" else "♘"

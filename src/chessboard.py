@@ -73,9 +73,14 @@ class ChessBoard:
 
             rook.cord = (rook_to_x, rook_to_y)
 
+        last_line = 7 if move.piece.color == PieceColor.WHITE else 0
         if move.promotion_pawn:
 
             self._board[to_y][to_x] = move.promotion_pawn
+
+
+        elif isinstance(move.piece, Pawn) and to_y == last_line:
+            self._board[to_y][to_x] = 0
 
 
 

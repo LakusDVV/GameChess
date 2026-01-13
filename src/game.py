@@ -253,7 +253,8 @@ class Game:
                 self.chessboard.undo(record)
                 self.history.pop()
                 color = record.piece.color
-                texture = self.texture_manager.get_texture(f"{color}_{record.piece.texture_key}")
+                texture_name = f"{color}_{fig.texture_key}"
+                texture = self.texture_manager.get_texture(texture_name)
 
                 x, y = record.to_pos
 
@@ -262,12 +263,18 @@ class Game:
 
                 record.promotion_pawn = figure
 
+
+                self.promotion = False
                 self.chessboard.apply_move(record)
                 self.history.push(record)
+                self.render.clear_promotion_pawn_data()
+                self.after_move()
 
 
 
-            except Exception():
+            except Exception() as ex:
+                print(ex)
+                self.promotion = False
                 self.render.clear_promotion_pawn_data()
                 print("Error in promotion")
                 self.chessboard.undo(record)
@@ -354,9 +361,9 @@ class Game:
 
         dict_cord = {
             cord: Queen,
-            (x, y + direction * 1): Knight,
-            (x, y + direction * 2): Rook,
-            (x, y + direction * 3): Bishop
+            (x, y - direction * 1): Knight,
+            (x, y - direction * 2): Rook,
+            (x, y - direction * 3): Bishop
         }
         if not (board_x, board_y) in dict_cord.keys():
             raise Exception("Er")

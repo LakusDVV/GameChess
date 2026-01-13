@@ -7,6 +7,9 @@ class PieceColor(Enum):
     def opposite(self) -> "PieceColor":
         return PieceColor.WHITE if self is PieceColor.BLACK else PieceColor.BLACK
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class PieceType(Enum):
     KING =  auto()
