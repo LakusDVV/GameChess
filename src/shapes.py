@@ -152,9 +152,9 @@ class Pawn(Figure):
         return moves
 
 
-    @property
-    def texture_key(self) -> str:
-        return self.texture_key
+    # @property
+    # def texture_key(self) -> str:
+    #     return self.texture_key
 
 
     def __str__(self):

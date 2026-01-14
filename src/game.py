@@ -243,7 +243,7 @@ class Game:
         if self.promotion:
             record = self.history.top()
             try:
-                fig = self.select_promotion_figure(
+                fig = select_promotion_figure(
                     cord=record.to_pos,
                     direction=record.piece.direction,
                     board_x=board_x,
@@ -325,7 +325,7 @@ class Game:
                 mov = []
 
                 for move in right_moves:
-                    if move.special == MoveSpecial.CAPTURE:
+                    if move.special in (MoveSpecial.CAPTURE, MoveSpecial.EN_PASSANT):
                         cap.append(move.to_pos)
                     elif move.special is None:
                         mov.append(move.to_pos)
@@ -363,20 +363,7 @@ class Game:
             return MoveResult.INVALID_MOVE
 
 
-    def select_promotion_figure(self, cord, direction, board_x, board_y):
 
-        x, y = cord
-
-        dict_cord = {
-            cord: Queen,
-            (x, y - direction * 1): Knight,
-            (x, y - direction * 2): Rook,
-            (x, y - direction * 3): Bishop
-        }
-        if not (board_x, board_y) in dict_cord.keys():
-            raise Exception("Er")
-        fig = dict_cord[(board_x, board_y)]
-        return fig
 
 
 
@@ -550,3 +537,18 @@ def view_status_add_figure(status: MoveResult):
             print(f"Figure added")
         case MoveResult.CELL_OCCUPIED:
             print("Cell is not empty")
+
+
+def select_promotion_figure(cord, direction, board_x, board_y):
+    x, y = cord
+
+    dict_cord = {
+        cord: Queen,
+        (x, y - direction * 1): Knight,
+        (x, y - direction * 2): Rook,
+        (x, y - direction * 3): Bishop
+    }
+    if not (board_x, board_y) in dict_cord.keys():
+        raise Exception("Er")
+    fig = dict_cord[(board_x, board_y)]
+    return fig

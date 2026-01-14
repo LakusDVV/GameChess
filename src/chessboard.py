@@ -59,7 +59,7 @@ class ChessBoard:
 
         piece.cord = move.to_pos
 
-        self.change_castling_rights(move)
+        self.change_castling_rights(move) # has bug auto change castling_rights
 
 
 
@@ -137,7 +137,8 @@ class ChessBoard:
         if move.captured_piece is None:
             self._board[to_y][to_x] = 0
         else:
-            self._board[to_y][to_x] = move.captured_piece
+            cx, cy = move.captured_pos
+            self._board[cy][cx] = move.captured_piece
 
         if move.rook:
             rook = move.rook
