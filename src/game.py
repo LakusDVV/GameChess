@@ -48,12 +48,10 @@ class Game:
             self.mouse_right_button(mouse_x, mouse_y)
 
 
-
     def create_figures(self):
         self.create_white_figures()
         self.create_black_figures()
         print(self.chessboard)
-
 
 
     def create_white_figures(self):
@@ -241,6 +239,7 @@ class Game:
         board_y = mouse_y // self.tile_size
 
         board = self.chessboard.get_board()
+
         if self.promotion:
             record = self.history.top()
             try:
@@ -321,10 +320,19 @@ class Game:
                 right_moves = status["right_moves"]
                 if not right_moves:
                     return MoveResult.CHECK
-                else:
-                    self.render.change_highlighting(new_moves=right_moves)
-                    self.available_moves = right_moves
-                    return MoveResult.OK
+
+                cap = []
+                mov = []
+
+                for move in right_moves:
+                    if move.special == MoveSpecial.CAPTURE:
+                        cap.append(move.to_pos)
+                    elif move.special is None:
+                        mov.append(move.to_pos)
+
+                self.render.change_highlighting_data(captures=cap, moves=mov)
+                self.available_moves = right_moves
+                return MoveResult.OK
             return MoveResult.INVALID_MOVE
 
 
@@ -346,11 +354,11 @@ class Game:
 
             self.make_move(record)
 
-            self.render.clear_highlighting()
+            self.render.clear_highlighting_data()
             self.mouse_first_right_click = False
             return MoveResult.OK
         else:
-            self.render.clear_highlighting()
+            self.render.clear_highlighting_data()
             self.mouse_first_right_click = False
             return MoveResult.INVALID_MOVE
 

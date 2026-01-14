@@ -84,7 +84,14 @@ class Render:
         self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
         self.select_color = rl.Color(r=160, g=160, b=160, a=255)
 
-        self.highlighting_list: list[tuple[int, int]] = []
+
+        self.highlighting_data = {
+            "has_data": False,
+            "captures": [],
+            "moves": []
+        }
+
+
         self.check_data: dict = {
             "has_data": False,
             "data": ()
@@ -156,28 +163,26 @@ class Render:
         chessboard = self._chessboard
         highlighting_texture = self.texture_manager.get_texture("highlighting")
 
-        for nx, ny in self.highlighting_list:
+        if self.highlighting_data["has_data"]:
+            for nx, ny in self.highlighting_data["captures"]:
+                tx = nx * self.tile_size
+                ty = ny * self.tile_size
 
-            cx = nx * self.tile_size + self.tile_size // 2
-            cy = ny * self.tile_size + self.tile_size // 2
-            tx = nx * self.tile_size
-            ty = ny * self.tile_size
-
-
-            if chessboard.is_empty(x=nx, y=ny):
-                rl.draw_circle(
-                    center_x=cx,
-                    center_y=cy,
-                    radius=self.radius,
-                    color=self.highlighting_color
-                )
-
-            else:
                 rl.draw_texture(
                     texture=highlighting_texture,
                     pos_x=tx,
                     pos_y=ty,
                     tint=rl.WHITE
+                )
+            for nx, ny in self.highlighting_data["moves"]:
+                cx = nx * self.tile_size + self.tile_size // 2
+                cy = ny * self.tile_size + self.tile_size // 2
+
+                rl.draw_circle(
+                    center_x=cx,
+                    center_y=cy,
+                    radius=self.radius,
+                    color=self.highlighting_color
                 )
 
 
@@ -261,14 +266,14 @@ class Render:
         self.check_data["has_data"] = False
 
 
-    def change_highlighting(self, new_moves: list[Move]):
-        moves = []
-        for move in new_moves:
-            moves.append(move.to_pos)
+    def change_highlighting_data(self, captures: list, moves: list):
+        if captures or moves:
+            self.highlighting_data["has_data"] = True
+            self.highlighting_data["captures"] = captures
+            self.highlighting_data["moves"] = moves
 
-        self.highlighting_list = moves
 
+    def clear_highlighting_data(self):
+        self.highlighting_data["has_data"] = False
 
-    def clear_highlighting(self) -> None:
-        self.highlighting_list.clear()
 
