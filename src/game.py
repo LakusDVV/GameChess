@@ -1,4 +1,5 @@
 import raylibpy as rl
+from copy import deepcopy
 from typing import Optional
 from src.chessboard import ChessBoard
 from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus
@@ -29,6 +30,7 @@ class Game:
         self.promotion = False
 
         self.history: History = History()
+        print(self.chessboard.castling_rights)
 
 
     def run(self):
@@ -67,11 +69,31 @@ class Game:
         # # Creates knights
         # self.creates_white_knights()
         #
-        # # Creates rooks
-        # self.creates_white_rooks()
+        # Creates rooks
+        self.creates_white_rooks()
 
         # Creates pawns
         self.creates_white_pawns()
+
+
+    def create_black_figures(self):
+        # Create king
+        self.create_black_king()
+
+        # # Create queen
+        # self.create_black_queen()
+        #
+        # # Creates bishops
+        # self.creates_black_bishops()
+        #
+        # # Creates knights
+        # self.creates_black_knights()
+
+        # Creates rooks
+        self.creates_black_rooks()
+
+        # Creates pawns
+        self.creates_black_pawns()
 
 
     def create_white_king(self):
@@ -129,24 +151,7 @@ class Game:
 
 
 
-    def create_black_figures(self):
-        # Create king
-        self.create_black_king()
 
-        # # Create queen
-        # self.create_black_queen()
-        #
-        # # Creates bishops
-        # self.creates_black_bishops()
-        #
-        # # Creates knights
-        # self.creates_black_knights()
-        #
-        # # Creates rooks
-        # self.creates_black_rooks()
-
-        # Creates pawns
-        self.creates_black_pawns()
 
 
     def create_black_king(self):
@@ -231,6 +236,7 @@ class Game:
 
         game_status = self.this_end(self.has_move)
         print(game_status)
+        print(self.chessboard.castling_rights)
 
 
 
@@ -327,7 +333,8 @@ class Game:
                 for move in right_moves:
                     if move.special in (MoveSpecial.CAPTURE, MoveSpecial.EN_PASSANT):
                         cap.append(move.to_pos)
-                    elif move.special is None:
+                    elif (move.special is None or
+                          move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE)):
                         mov.append(move.to_pos)
 
                 self.render.change_highlighting_data(captures=cap, moves=mov)
@@ -361,10 +368,6 @@ class Game:
             self.render.clear_highlighting_data()
             self.mouse_first_right_click = False
             return MoveResult.INVALID_MOVE
-
-
-
-
 
 
 
@@ -442,6 +445,7 @@ class Game:
         self.chessboard.apply_move(mr)
         king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
         self.chessboard.undo(mr)
+        print(mr, self.chessboard.castling_rights)
 
         if move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE):
             if not self.can_king_castle(move_record=mr):
@@ -477,7 +481,7 @@ class Game:
         rook_from: Optional[tuple[int, int]] = None
         rook_to: Optional[tuple[int, int]] = None
 
-        prev_castling_rights: CastlingRights = self.chessboard.castling_rights
+        prev_castling_rights: CastlingRights = deepcopy(self.chessboard.castling_rights)
         prev_en_passant: Optional[tuple[int, int]] = self.chessboard.en_passant_target
 
 
