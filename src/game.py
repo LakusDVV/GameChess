@@ -27,6 +27,7 @@ class Game:
 
         self.has_move: PieceColor = PieceColor.WHITE
         self.available_moves = []
+        self.avl_moves: list[tuple[int, int]] = []
         self.promotion = False
 
         self.history: History = History()
@@ -45,6 +46,18 @@ class Game:
         mouse_x = rl.get_mouse_x()
         mouse_y = rl.get_mouse_y()
 
+
+
+        if self.mouse_first_right_click and self.available_moves:
+            board_x = mouse_x // self.tile_size
+            board_y = mouse_y // self.tile_size
+
+            if (board_x, board_y) in self.avl_moves:
+                self.render.change_highlighting_of_the_selected_cell_data(cord=(board_x, board_y))
+            else:
+                self.render.clear_highlighting_of_the_selected_cell_data()
+
+
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             print(mouse_x, mouse_y)
             self.mouse_right_button(mouse_x, mouse_y)
@@ -60,15 +73,15 @@ class Game:
         # Create king
         self.create_white_king()
 
-        # # Create queen
-        # self.create_white_queen()
-        #
-        # # Creates bishops
-        # self.creates_white_bishops()
-        #
-        # # Creates knights
-        # self.creates_white_knights()
-        #
+        # Create queen
+        self.create_white_queen()
+
+        # Creates bishops
+        self.creates_white_bishops()
+
+        # Creates knights
+        self.creates_white_knights()
+
         # Creates rooks
         self.creates_white_rooks()
 
@@ -80,14 +93,14 @@ class Game:
         # Create king
         self.create_black_king()
 
-        # # Create queen
-        # self.create_black_queen()
-        #
-        # # Creates bishops
-        # self.creates_black_bishops()
-        #
-        # # Creates knights
-        # self.creates_black_knights()
+        # Create queen
+        self.create_black_queen()
+
+        # Creates bishops
+        self.creates_black_bishops()
+
+        # Creates knights
+        self.creates_black_knights()
 
         # Creates rooks
         self.creates_black_rooks()
@@ -286,6 +299,8 @@ class Game:
 
 
 
+
+
         if not self.mouse_first_right_click:
             piece = board[board_y][board_x]
 
@@ -335,6 +350,13 @@ class Game:
                           move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE)):
                         mov.append(move.to_pos)
 
+                    self.avl_moves.append(move.to_pos)
+
+
+
+
+
+                self.render.change_highlighting_selected_cell_data(cord=piece.cord)
                 self.render.change_highlighting_data(captures=cap, moves=mov)
                 self.available_moves = right_moves
                 return MoveResult.OK
@@ -361,6 +383,8 @@ class Game:
 
             self.render.clear_highlighting_data()
             self.mouse_first_right_click = False
+            self.available_moves = []
+            self.avl_moves = []
             return MoveResult.OK
         else:
             self.render.clear_highlighting_data()
@@ -435,7 +459,7 @@ class Game:
 
 
             return dic
-        return {}
+        return dic
 
 
     def filter_move(self, move):
