@@ -60,7 +60,9 @@ class Game:
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             print(mouse_x, mouse_y)
-            self.mouse_right_button(mouse_x, mouse_y)
+            board_x = mouse_x // self.tile_size
+            board_y = mouse_y // self.tile_size
+            self.mouse_right_button(board_x=board_x, board_y=board_y)
 
 
     def create_figures(self):
@@ -109,118 +111,6 @@ class Game:
         self.creates_black_pawns()
 
 
-    def create_white_king(self):
-        # Create king
-        white_king_texture = self.texture_manager.get_texture("white_king")
-        x, y = 3, 0
-        king = King(x=x, y=y, texture=white_king_texture, color=PieceColor.WHITE)
-        status = self.chessboard.add_figure(x=x, y=y, figure=king)
-        view_status_add_figure(status)
-
-
-    def create_white_queen(self):
-        # Create queen
-        white_queen_texture = self.texture_manager.get_texture("white_queen")
-        x, y = 4, 0
-        queen = Queen(x=x, y=y, texture=white_queen_texture, color=PieceColor.WHITE)
-        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
-        view_status_add_figure(status)
-
-
-    def creates_white_bishops(self):
-        white_bishop_texture = self.texture_manager.get_texture("white_bishop")
-        x, y = None, 0
-        for x in (2, 5):
-            bishop = Bishop(x=x, y=y, texture=white_bishop_texture, color=PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
-            view_status_add_figure(status)
-
-
-    def creates_white_knights(self):
-        white_knight_texture = self.texture_manager.get_texture("white_knight")
-        x, y = None, 0
-        for x in (1, 6):
-            knight = Knight(x=x, y=y, texture=white_knight_texture, color=PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
-            view_status_add_figure(status)
-
-
-    def creates_white_rooks(self):
-        white_rook_texture = self.texture_manager.get_texture("white_rook")
-        x, y = None, 0
-        for x in (0, 7):
-            rook = Rook(x=x, y=y, texture=white_rook_texture, color=PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
-            view_status_add_figure(status)
-
-
-    def creates_white_pawns(self):
-        white_pawn_texture = self.texture_manager.get_texture("white_pawn")
-        x, y = None, 1
-        for x in range(self.rows):
-            pawn = Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
-            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
-            view_status_add_figure(status)
-
-
-    def create_black_king(self):
-        # Create king
-        black_king_texture = self.texture_manager.get_texture("black_king")
-        x, y = 3, 7
-        king = King(x=x, y=y, texture=black_king_texture, color=PieceColor.BLACK)
-        status = self.chessboard.add_figure(x=x, y=y, figure=king)
-        view_status_add_figure(status)
-
-
-    def create_black_queen(self):
-        # Create queen
-        black_queen_texture = self.texture_manager.get_texture("black_queen")
-        x, y = 4, 7
-        queen = Queen(x=x, y=y, texture=black_queen_texture, color=PieceColor.BLACK)
-        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
-        view_status_add_figure(status)
-
-
-    def creates_black_bishops(self):
-        # Creates bishops
-        black_bishop_texture = self.texture_manager.get_texture("black_bishop")
-        x, y = None, 7
-        for x in (2, 5):
-            bishop = Bishop(x=x, y=y, texture=black_bishop_texture, color=PieceColor.BLACK)
-            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
-            view_status_add_figure(status)
-
-
-    def creates_black_knights(self):
-        # Creates knights
-        black_knight_texture = self.texture_manager.get_texture("black_knight")
-        x, y = None, 7
-        for x in (1, 6):
-            knight = Knight(x=x, y=y, texture=black_knight_texture, color=PieceColor.BLACK)
-            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
-            view_status_add_figure(status)
-
-
-    def creates_black_rooks(self):
-        # Creates rooks
-        black_rook_texture = self.texture_manager.get_texture("black_rook")
-        x, y = None, 7
-        for x in (0, 7):
-            rook = Rook(x=x, y=y, texture=black_rook_texture, color=PieceColor.BLACK)
-            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
-            view_status_add_figure(status)
-
-
-    def creates_black_pawns(self):
-        # Creates pawns
-        black_pawn_texture = self.texture_manager.get_texture("black_pawn")
-        x, y = None, 6
-        for x in range(self.rows):
-            pawn = Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
-            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
-            view_status_add_figure(status)
-
-
     def after_move(self):
         record = self.history.top()
         if self.promotion:
@@ -250,10 +140,8 @@ class Game:
         print(self.chessboard.castling_rights)
 
 
+    def mouse_right_button(self, board_x, board_y):
 
-    def mouse_right_button(self, mouse_x, mouse_y):
-        board_x = mouse_x // self.tile_size
-        board_y = mouse_y // self.tile_size
 
         board = self.chessboard.get_board()
 
@@ -297,10 +185,6 @@ class Game:
                 self.history.pop()
                 return
 
-
-
-
-
         if not self.mouse_first_right_click:
             piece = board[board_y][board_x]
 
@@ -331,66 +215,74 @@ class Game:
 
 
     def _first_click(self, *, piece):
-        if not piece == 0:
-            moves = piece.get_moves(chessboard=self.chessboard)
-            status = self.filter_moves(moves=moves)
+        self.render.change_highlighting_selected_cell_data(cord=piece.cord)
 
-            if status:
-                right_moves = status["right_moves"]
-                if not right_moves:
-                    return MoveResult.CHECK
+        moves = piece.get_moves(chessboard=self.chessboard)
+        status = self.filter_moves(moves=moves)
 
-                cap = []
-                mov = []
+        if status:
+            right_moves = status["right_moves"]
+            if not right_moves:
+                return MoveResult.CHECK
 
-                for move in right_moves:
-                    if move.special in (MoveSpecial.CAPTURE, MoveSpecial.EN_PASSANT):
-                        cap.append(move.to_pos)
-                    elif (move.special is None or
-                          move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE)):
-                        mov.append(move.to_pos)
+            cap = []
+            mov = []
 
-                    self.avl_moves.append(move.to_pos)
+            for move in right_moves:
+                if move.special in (MoveSpecial.CAPTURE, MoveSpecial.EN_PASSANT):
+                    cap.append(move.to_pos)
+                elif (move.special is None or
+                      move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE)):
+                    mov.append(move.to_pos)
+                self.avl_moves.append(move.to_pos)
 
-
-
-
-
-                self.render.change_highlighting_selected_cell_data(cord=piece.cord)
-                self.render.change_highlighting_data(captures=cap, moves=mov)
-                self.available_moves = right_moves
-                return MoveResult.OK
-            return MoveResult.INVALID_MOVE
+            self.render.change_highlighting_data(captures=cap, moves=mov)
+            self.available_moves = right_moves
+            return MoveResult.OK
+        return MoveResult.INVALID_MOVE
 
 
-        else:
-            return MoveResult.ERROR
+
 
 
     def _second_click(self, *, board_x, board_y):
         move = self.find_move_to(to_x=board_x, to_y=board_y)
+        board = self.chessboard.get_board()
+        piece = board[board_y][board_x]
 
         if move:
             record = self.move_to_move_record(move=move)
             last_line = 7 if record.piece.color == PieceColor.WHITE else 0
             to_x, to_y = record.to_pos
+
             if isinstance(record.piece, Pawn) and to_y == last_line:
                 self.promotion = True
-
-
 
             self.make_move(record)
 
             self.render.clear_highlighting_data()
+
+            self.render.clear_highlighting_selected_cell_data()
             self.mouse_first_right_click = False
             self.available_moves = []
             self.avl_moves = []
             return MoveResult.OK
+
+        elif piece.color == self.selected_piece.color:
+            self.render.clear_highlighting_data()
+            self.render.clear_highlighting_selected_cell_data()
+            self.available_moves = []
+            self.avl_moves = []
+
+            self.mouse_first_right_click = False
+            self.mouse_right_button(board_x=board_x, board_y=board_y)
+
         else:
             self.render.clear_highlighting_data()
+            self.render.clear_highlighting_selected_cell_data()
             self.mouse_first_right_click = False
-            return MoveResult.INVALID_MOVE
 
+            return MoveResult.INVALID_MOVE
 
 
     def make_move(self, record: MoveRecord):
@@ -555,6 +447,125 @@ class Game:
 
         )
         return mr
+
+
+
+
+
+
+
+
+
+    def create_white_king(self):
+        # Create king
+        white_king_texture = self.texture_manager.get_texture("white_king")
+        x, y = 3, 0
+        king = King(x=x, y=y, texture=white_king_texture, color=PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=king)
+        view_status_add_figure(status)
+
+
+    def create_white_queen(self):
+        # Create queen
+        white_queen_texture = self.texture_manager.get_texture("white_queen")
+        x, y = 4, 0
+        queen = Queen(x=x, y=y, texture=white_queen_texture, color=PieceColor.WHITE)
+        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
+        view_status_add_figure(status)
+
+
+    def creates_white_bishops(self):
+        white_bishop_texture = self.texture_manager.get_texture("white_bishop")
+        x, y = None, 0
+        for x in (2, 5):
+            bishop = Bishop(x=x, y=y, texture=white_bishop_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
+            view_status_add_figure(status)
+
+
+    def creates_white_knights(self):
+        white_knight_texture = self.texture_manager.get_texture("white_knight")
+        x, y = None, 0
+        for x in (1, 6):
+            knight = Knight(x=x, y=y, texture=white_knight_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
+            view_status_add_figure(status)
+
+
+    def creates_white_rooks(self):
+        white_rook_texture = self.texture_manager.get_texture("white_rook")
+        x, y = None, 0
+        for x in (0, 7):
+            rook = Rook(x=x, y=y, texture=white_rook_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
+            view_status_add_figure(status)
+
+
+    def creates_white_pawns(self):
+        white_pawn_texture = self.texture_manager.get_texture("white_pawn")
+        x, y = None, 1
+        for x in range(self.rows):
+            pawn = Pawn(x=x, y=y, texture=white_pawn_texture, color=PieceColor.WHITE)
+            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+            view_status_add_figure(status)
+
+
+    def create_black_king(self):
+        # Create king
+        black_king_texture = self.texture_manager.get_texture("black_king")
+        x, y = 3, 7
+        king = King(x=x, y=y, texture=black_king_texture, color=PieceColor.BLACK)
+        status = self.chessboard.add_figure(x=x, y=y, figure=king)
+        view_status_add_figure(status)
+
+
+    def create_black_queen(self):
+        # Create queen
+        black_queen_texture = self.texture_manager.get_texture("black_queen")
+        x, y = 4, 7
+        queen = Queen(x=x, y=y, texture=black_queen_texture, color=PieceColor.BLACK)
+        status = self.chessboard.add_figure(x=x, y=y, figure=queen)
+        view_status_add_figure(status)
+
+
+    def creates_black_bishops(self):
+        # Creates bishops
+        black_bishop_texture = self.texture_manager.get_texture("black_bishop")
+        x, y = None, 7
+        for x in (2, 5):
+            bishop = Bishop(x=x, y=y, texture=black_bishop_texture, color=PieceColor.BLACK)
+            status = self.chessboard.add_figure(x=x, y=y, figure=bishop)
+            view_status_add_figure(status)
+
+
+    def creates_black_knights(self):
+        # Creates knights
+        black_knight_texture = self.texture_manager.get_texture("black_knight")
+        x, y = None, 7
+        for x in (1, 6):
+            knight = Knight(x=x, y=y, texture=black_knight_texture, color=PieceColor.BLACK)
+            status = self.chessboard.add_figure(x=x, y=y, figure=knight)
+            view_status_add_figure(status)
+
+
+    def creates_black_rooks(self):
+        # Creates rooks
+        black_rook_texture = self.texture_manager.get_texture("black_rook")
+        x, y = None, 7
+        for x in (0, 7):
+            rook = Rook(x=x, y=y, texture=black_rook_texture, color=PieceColor.BLACK)
+            status = self.chessboard.add_figure(x=x, y=y, figure=rook)
+            view_status_add_figure(status)
+
+
+    def creates_black_pawns(self):
+        # Creates pawns
+        black_pawn_texture = self.texture_manager.get_texture("black_pawn")
+        x, y = None, 6
+        for x in range(self.rows):
+            pawn = Pawn(x=x, y=y, texture=black_pawn_texture, color=PieceColor.BLACK)
+            status = self.chessboard.add_figure(x=x, y=y, figure=pawn)
+            view_status_add_figure(status)
 
 
 def view_status_add_figure(status: MoveResult):
