@@ -150,10 +150,6 @@ class Game:
             view_status_add_figure(status)
 
 
-
-
-
-
     def create_black_king(self):
         # Create king
         black_king_texture = self.texture_manager.get_texture("black_king")
@@ -213,8 +209,9 @@ class Game:
 
 
     def after_move(self):
+        record = self.history.top()
         if self.promotion:
-            record = self.history.top()
+
 
             self.render.change_promotion_pawn_data(
                 color=record.piece.color,
@@ -225,6 +222,7 @@ class Game:
             print("Promotion")
             return
 
+        self.render.change_last_move_data(from_pos=record.from_pos, to_pos=record.to_pos)
         self.has_move = self.has_move.opposite()
 
         kx, ky = self.chessboard.find_king(color=self.has_move)

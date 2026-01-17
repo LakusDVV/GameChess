@@ -1,8 +1,7 @@
 import os
 import raylibpy as rl
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from src.paths import IMAGES_DIR
-from src.dataclass import Move
 from src.enums import PieceColor
 
 
@@ -83,6 +82,7 @@ class Render:
         self.check_color = rl.Color(r=230, g=41, b=55, a=120)
         self.highlighting_color = rl.Color(r=129, g=151, b=105, a=255)
         self.select_color = rl.Color(r=160, g=160, b=160, a=255)
+        self.last_move_color = rl.Color(r=154, g=200, b=0, a=105)
 
 
         self.highlighting_data = {
@@ -91,6 +91,10 @@ class Render:
             "moves": []
         }
 
+        self.last_move_data = {
+            "has_data": False,
+            "data": [(1, 1), (1, 1)]
+        }
 
         self.check_data: dict = {
             "has_data": False,
@@ -126,6 +130,7 @@ class Render:
         rl.clear_background(rl.RAYWHITE)
 
         self.draw_tiles()
+        self.draw_last_move()
         self.draw_figures()
         self.draw_highlighting()
         self.draw_check_king()
@@ -160,7 +165,6 @@ class Render:
 
 
     def draw_highlighting(self) -> None:
-        chessboard = self._chessboard
         highlighting_texture = self.texture_manager.get_texture("highlighting")
 
         if self.highlighting_data["has_data"]:
@@ -245,6 +249,27 @@ class Render:
             )
 
 
+    def draw_last_move(self) -> None:
+        if self.last_move_data["has_data"]:
+            for x, y in self.last_move_data["data"]:
+                rl.draw_rectangle(
+                    pos_x=x * self.tile_size,
+                    pos_y=y * self.tile_size,
+                    width=self.tile_size,
+                    height=self.tile_size,
+                    color=self.last_move_color
+                )
+
+
+    def change_last_move_data(self, from_pos: tuple[int, int], to_pos: tuple[int, int]):
+        self.last_move_data["data"] = [from_pos, to_pos]
+        self.last_move_data["has_data"] = True
+
+
+    def clear_last_move_data(self):
+        self.last_move_data["has_data"] = False
+
+
     def change_promotion_pawn_data(self, color: PieceColor, direction: int, cord: tuple[int, int]):
         self.promotion_pawn_data["has_data"] = True
         self.promotion_pawn_data["data"]["color"] = color
@@ -275,5 +300,6 @@ class Render:
 
     def clear_highlighting_data(self):
         self.highlighting_data["has_data"] = False
+
 
 
