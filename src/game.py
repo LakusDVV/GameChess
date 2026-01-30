@@ -45,12 +45,13 @@ class Game:
     def update(self):
         mouse_x = rl.get_mouse_x()
         mouse_y = rl.get_mouse_y()
+        board_x = mouse_x // self.tile_size
+        board_y = mouse_y // self.tile_size
 
 
 
         if self.mouse_first_right_click and self.available_moves:
-            board_x = mouse_x // self.tile_size
-            board_y = mouse_y // self.tile_size
+
 
             if (board_x, board_y) in self.avl_moves:
                 self.render.change_highlighting_of_the_selected_cell_data(cord=(board_x, board_y))
@@ -59,10 +60,11 @@ class Game:
 
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
-            print(mouse_x, mouse_y)
-            board_x = mouse_x // self.tile_size
-            board_y = mouse_y // self.tile_size
+            print(f'{(mouse_x, mouse_y)}, {(board_x, board_y)}')
+
             self.mouse_right_button(board_x=board_x, board_y=board_y)
+
+
 
 
     def create_figures(self):
@@ -210,7 +212,7 @@ class Game:
                     self.mouse_first_right_click = True
 
             else:
-                print("Error, this piece don't have move")
+                print("Error, this piece doesn't have move")
 
         elif self.mouse_first_right_click:
             status = self._second_click(board_x=board_x, board_y=board_y)
