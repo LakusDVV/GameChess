@@ -141,26 +141,31 @@ class Game:
 
 
     def mouse_right_button(self, board_x, board_y):
-
-
         board = self.chessboard.get_board()
 
         if self.promotion:
             record = self.history.top()
             try:
+                self.chessboard.undo(record)
+                self.history.pop()
+
+                self.promotion = False
+                self.render.clear_promotion_pawn_data()
+                self.render.clear_highlighting_selected_cell_data()
+
                 fig = select_promotion_figure(
                     cord=record.to_pos,
                     direction=record.piece.direction,
                     board_x=board_x,
                     board_y=board_y
                 )
-                self.chessboard.undo(record)
-                self.history.pop()
                 color = record.piece.color
                 texture_name = f"{color}_{fig.texture_key}"
                 texture = self.texture_manager.get_texture(texture_name)
 
                 x, y = record.to_pos
+
+
 
                 figure = fig(x=x, y=y, texture=texture, color=record.piece.color)
 
@@ -168,15 +173,17 @@ class Game:
                 record.promotion_pawn = figure
 
 
-                self.promotion = False
+
                 self.chessboard.apply_move(record)
                 self.history.push(record)
-                self.render.clear_promotion_pawn_data()
+
                 self.after_move()
 
+            except IndexError as ex:
+                print(ex.args)
 
 
-            except Exception() as ex:
+            except Exception as ex:
                 print(ex)
                 self.promotion = False
                 self.render.clear_promotion_pawn_data()
@@ -250,39 +257,50 @@ class Game:
         board = self.chessboard.get_board()
         piece = board[board_y][board_x]
 
-        if move:
-            record = self.move_to_move_record(move=move)
-            last_line = 7 if record.piece.color == PieceColor.WHITE else 0
-            to_x, to_y = record.to_pos
 
-            if isinstance(record.piece, Pawn) and to_y == last_line:
-                self.promotion = True
+        try:
+            if move:
+                record = self.move_to_move_record(move=move)
+                last_line = 7 if record.piece.color == PieceColor.WHITE else 0
+                to_x, to_y = record.to_pos
 
-            self.make_move(record)
+                if isinstance(record.piece, Pawn) and to_y == last_line:
+                    self.promotion = True
+
+                self.make_move(record)
+                self.render.clear_highlighting_data()
+                self.render.clear_highlighting_selected_cell_data()
+                self.mouse_first_right_click = False
+                self.available_moves = []
+                self.avl_moves = []
+                return MoveResult.OK
+
+            elif piece.color == self.selected_piece.color:
+                self.render.clear_highlighting_data()
+                self.render.clear_highlighting_selected_cell_data()
+                self.available_moves = []
+                self.avl_moves = []
+
+                self.mouse_first_right_click = False
+                if piece.cord == (board_x, board_y):
+                    return MoveResult.INVALID_MOVE
+                self.mouse_right_button(board_x=board_x, board_y=board_y)
+
+            else:
+                self.render.clear_highlighting_data()
+                self.render.clear_highlighting_selected_cell_data()
+                self.mouse_first_right_click = False
+
+                return MoveResult.INVALID_MOVE
+        except Exception as ex:
+            print(ex.args)
 
             self.render.clear_highlighting_data()
-
             self.render.clear_highlighting_selected_cell_data()
             self.mouse_first_right_click = False
             self.available_moves = []
             self.avl_moves = []
-            return MoveResult.OK
-
-        elif piece.color == self.selected_piece.color:
-            self.render.clear_highlighting_data()
-            self.render.clear_highlighting_selected_cell_data()
-            self.available_moves = []
-            self.avl_moves = []
-
-            self.mouse_first_right_click = False
-            self.mouse_right_button(board_x=board_x, board_y=board_y)
-
-        else:
-            self.render.clear_highlighting_data()
-            self.render.clear_highlighting_selected_cell_data()
-            self.mouse_first_right_click = False
-
-            return MoveResult.INVALID_MOVE
+            return MoveResult.ERROR
 
 
     def make_move(self, record: MoveRecord):
@@ -586,6 +604,6 @@ def select_promotion_figure(cord, direction, board_x, board_y):
         (x, y - direction * 3): Bishop
     }
     if not (board_x, board_y) in dict_cord.keys():
-        raise Exception("Er")
+        raise IndexError("Er")
     fig = dict_cord[(board_x, board_y)]
     return fig
