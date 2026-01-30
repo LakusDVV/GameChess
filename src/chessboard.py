@@ -45,6 +45,12 @@ class ChessBoard:
 
 
     def apply_move(self, move: MoveRecord):
+        # Correct work by
+        # promotion +
+        # capture +
+        # simple move +
+        # castle +
+        # en_passant +
         from_x, from_y = move.from_pos
         to_x, to_y = move.to_pos
 
@@ -82,6 +88,47 @@ class ChessBoard:
         elif isinstance(move.piece, Pawn) and to_y == last_line:
             self._board[to_y][to_x] = 0
 
+
+
+
+
+
+    def undo(self, move: MoveRecord):
+        # Correct work when
+        # promotion +
+        # capture +
+        # simple move +
+        # castle +
+        # en_passant +
+        # If move is promotion + capture ? To my mind -
+        from_x, from_y = move.from_pos
+        to_x, to_y = move.to_pos
+
+        piece: Figure = move.piece
+
+
+        self._board[from_y][from_x] = piece
+
+        if move.captured_piece is None:
+            self._board[to_y][to_x] = 0
+        else:
+            cx, cy = move.captured_pos
+            self._board[cy][cx] = move.captured_piece
+
+        if move.rook:
+            rook = move.rook
+            rook_from_x, rook_from_y = move.rook_from
+            rook_to_x, rook_to_y = move.rook_to
+
+            self._board[rook_to_y][rook_to_x] = 0
+            self._board[rook_from_y][rook_from_x] = rook
+
+            rook.cord = (rook_from_x, rook_from_y)
+
+        piece.cord = move.from_pos
+
+        self.castling_rights = move.prev_castling_rights
+        self.en_passant_target = move.prev_en_passant
 
 
     def change_castling_rights(self, record: MoveRecord):
@@ -123,37 +170,6 @@ class ChessBoard:
 
         else:
             self.en_passant_target = None
-
-
-    def undo(self, move: MoveRecord):
-        from_x, from_y = move.from_pos
-        to_x, to_y = move.to_pos
-
-        piece: Figure = move.piece
-
-
-        self._board[from_y][from_x] = piece
-
-        if move.captured_piece is None:
-            self._board[to_y][to_x] = 0
-        else:
-            cx, cy = move.captured_pos
-            self._board[cy][cx] = move.captured_piece
-
-        if move.rook:
-            rook = move.rook
-            rook_from_x, rook_from_y = move.rook_from
-            rook_to_x, rook_to_y = move.rook_to
-
-            self._board[rook_to_y][rook_to_x] = 0
-            self._board[rook_from_y][rook_from_x] = rook
-
-            rook.cord = (rook_from_x, rook_from_y)
-
-        piece.cord = move.from_pos
-
-        self.castling_rights = move.prev_castling_rights
-        self.en_passant_target = move.prev_en_passant
 
 
     def get_piece(self, *, cord: tuple[int, int]) -> Figure:
@@ -223,7 +239,7 @@ class ChessBoard:
 
 
     def has_piece(self, x: int, y: int, piece_type: type, color: PieceColor) -> bool:
-        if not self.is_inside(x, y):
+        if not self.is_inside(x, y): # If x, y not in the board
             return False
 
         piece = self._board[y][x]
