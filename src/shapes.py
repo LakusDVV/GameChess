@@ -8,13 +8,13 @@ class Figure:
     texture_key: str
 
 
-    def __init__(self, *, x: int, y: int, color: PieceColor, texture, tile_size=70):
+    def __init__(self, *, x: int, y: int, color: PieceColor, tile_size=70):
         self.cord = (x, y)
         self.tile_size = tile_size
 
         self.color: PieceColor = color
-        self.texture = texture
-        self.renderer =  RenderComponent(texture)
+        # self.texture = texture
+        # self.renderer =  RenderComponent(texture)
 
 
         self.direction = 1 if self.color == PieceColor.WHITE else -1 # The bug,  because my board
@@ -22,9 +22,9 @@ class Figure:
 
 
 
-    def draw(self):
-        x, y = self.cord
-        self.renderer.draw(x=x, y=y, tile_size=self.tile_size)
+    # def draw(self):
+    #     x, y = self.cord
+    #     self.renderer.draw(x=x, y=y, tile_size=self.tile_size)
 
 
     def get_moves(self, *, chessboard) -> list[Move]:

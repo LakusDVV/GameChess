@@ -38,3 +38,4 @@ class GameStatus(Enum):
     IN_PROGRESS = auto()
     PAT = auto()
     CHECKMATE = auto()
+    EXIT = auto()
