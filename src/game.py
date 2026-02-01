@@ -22,54 +22,31 @@ class Game:
 
         self.create_figures()
 
-        # self.mouse_first_right_click = False
-        self.selected_piece: Figure
+        self.first_select = False
+        self.selected_piece: Figure = Figure()
 
         self.has_move: PieceColor = PieceColor.WHITE
         self.available_moves = []
         self.avl_moves: list[tuple[int, int]] = []
         self.promotion = False
+        self.game_status = GameStatus.IN_PROGRESS
 
         self.history: History = History()
         print(self.chessboard.castling_rights)
 
 
     def run(self):
-        # while not rl.window_should_close():
-            # self.render.draw()
-            # self.update()
+        status = GameStatus.IN_PROGRESS
+        print(self.chessboard)
+        while status == GameStatus.IN_PROGRESS:
 
-        # rl.close_window()
-        while True:
             status = self.update()
-            if status == GameStatus.EXIT:
-                break
 
-        print("game_finished")
+
+        print(f"game_finished {status}")
 
 
     def update(self):
-        # mouse_x = rl.get_mouse_x()
-        # mouse_y = rl.get_mouse_y()
-        # board_x = mouse_x // self.tile_size
-        # board_y = mouse_y // self.tile_size
-
-
-
-        # if self.mouse_first_right_click and self.available_moves:
-        #
-        #
-        #     if (board_x, board_y) in self.avl_moves:
-        #         self.render.change_highlighting_of_the_selected_cell_data(cord=(board_x, board_y))
-        #     else:
-        #         self.render.clear_highlighting_of_the_selected_cell_data()
-
-
-        # if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
-        #     print(f'{(mouse_x, mouse_y)}, {(board_x, board_y)}')
-        #
-        #     self.mouse_right_button(board_x=board_x, board_y=board_y)
-
         text = input("x, y: ")
 
         if text.lower() == "stop":
@@ -80,8 +57,16 @@ class Game:
         print(f"x: {str_x}, type: {type(str_x)}\n"
               f"y: {str_y}, type: {type(str_y)}\n")
 
-        return GameStatus.IN_PROGRESS
+        int_x, int_y = int(str_x), int(str_y)
+        print(f"x: {int_x}, type: {type(int_x)}\n"
+              f"y: {int_y}, type: {type(int_y)}\n")
 
+        status = self.selected_cell(board_x=int_x, board_y=int_y)
+        print(status)
+        print(self.get_game_info())
+
+
+        return GameStatus.IN_PROGRESS
 
 
     def create_figures(self):
@@ -108,14 +93,6 @@ class Game:
                 )
 
 
-
-
-
-
-
-
-        print(self.chessboard)
-
     def append_figures_on_board(self, figures:list[Figure]):
         for fig in figures:
             x, y = fig.cord
@@ -123,30 +100,9 @@ class Game:
 
 
 
-
-
-
-
-
-
-
-
-
-
     def after_move(self):
         record = self.history.top()
-        if self.promotion:
 
-            self.render.change_promotion_pawn_data(
-                color=record.piece.color,
-                cord=record.to_pos,
-                direction=record.piece.direction
-            )
-
-            print("Promotion")
-            return
-
-        self.render.change_last_move_data(from_pos=record.from_pos, to_pos=record.to_pos)
         self.has_move = self.has_move.opposite()
 
         kx, ky = self.chessboard.find_king(color=self.has_move)
@@ -161,164 +117,107 @@ class Game:
         print(self.chessboard.castling_rights)
 
 
-    def mouse_right_button(self, board_x, board_y):
+    def selected_cell(self, board_x, board_y):
         board = self.chessboard.get_board()
 
-        if self.promotion:
-            status = self.make_promotion(board_x=board_x, board_y=board_y)
-            self.promotion = False
-            self.render.clear_promotion_pawn_data()
-            self.render.clear_highlighting_selected_cell_data()
-
-            print(status)
-            if status == MoveResult.OK:
-                self.after_move()
-
-
-
-        if not self.mouse_first_right_click:
+        if not self.first_select:
             piece = board[board_y][board_x]
 
             if piece == 0:
-                print("Cell is empty")
-                return
+                return 0
 
             self.selected_piece = piece
 
             if self.selected_piece.color == self.has_move:
 
-                status = self._first_click(piece=self.selected_piece)
+                data = self._first_select(board_x=board_x, board_y=board_y)
 
-                print(status)
-                if status == MoveResult.OK:
-                    self.mouse_first_right_click = True
+                print(data)
+                if data["status"] == MoveResult.OK:
+                    self.first_select= True
 
             else:
                 print("Error, this piece doesn't have move")
 
-        elif self.mouse_first_right_click:
-            status = self._second_click(board_x=board_x, board_y=board_y)
+        elif self.first_select:
+            status = self._second_select(board_x=board_x, board_y=board_y)
 
             if status == MoveResult.OK:
                 self.after_move()
 
         print(self.chessboard)
+        return 1
 
 
-    def make_promotion(self, board_x, board_y):
-        record = self.history.top()
-        try:
-            self.chessboard.undo(record)
-            self.history.pop()
-
-            fig = select_promotion_figure(
-                cord=record.to_pos,
-                direction=record.piece.direction,
-                board_x=board_x,
-                board_y=board_y
-            )
-            color = record.piece.color
-            texture_name = f"{color}_{fig.texture_key}"
-            texture = self.texture_manager.get_texture(texture_name)
-
-            x, y = record.to_pos
-
-            figure = fig(x=x, y=y, texture=texture, color=record.piece.color)
-
-            record.promotion_pawn = figure
-
-            self.chessboard.apply_move(record)
-            self.history.push(record)
-
-            return MoveResult.OK
-
-        except IndexError as ex:
-            print(ex.args)
-            return MoveResult.ERROR
+    def get_game_info(self):
+        return {
+            "who move": self.has_move,
+            "status": self.game_status
+        }
 
 
-        except Exception as ex:
-            print(ex.args)
-            return MoveResult.ERROR
 
 
-    def _first_click(self, *, piece):
-        self.render.change_highlighting_selected_cell_data(cord=piece.cord)
+    def _first_select(self, *, board_x, board_y):
+        returned_data = {
+            "selected_piece": 0,
+            "status": MoveResult.OK,
+            "moves": []
+        }
+        board = self.chessboard.get_board()
+        piece = board[board_y][board_x]
 
         moves = piece.get_moves(chessboard=self.chessboard)
-        status = self.filter_moves(moves=moves)
+        data = self.filter_moves(moves=moves)
 
-        if status:
-            right_moves = status["right_moves"]
+        if data:
+            right_moves = data["right_moves"]
             if not right_moves:
                 return MoveResult.CHECK
 
-            cap = []
-            mov = []
-
             for move in right_moves:
-                if move.special in (MoveSpecial.CAPTURE, MoveSpecial.EN_PASSANT):
-                    cap.append(move.to_pos)
-                elif (move.special is None or
-                      move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE)):
-                    mov.append(move.to_pos)
                 self.avl_moves.append(move.to_pos)
 
-            self.render.change_highlighting_data(captures=cap, moves=mov)
             self.available_moves = right_moves
-            return MoveResult.OK
-        return MoveResult.INVALID_MOVE
+
+            returned_data["selected_piece"] = piece
+            returned_data["moves"] = right_moves
+
+            return returned_data
+
+        returned_data["status"] = MoveResult.INVALID_MOVE
+        return returned_data
 
 
-    def _second_click(self, *, board_x, board_y):
+    def _second_select(self, *, board_x, board_y):
         move = self.find_move_to(to_x=board_x, to_y=board_y)
         board = self.chessboard.get_board()
         piece = board[board_y][board_x]
 
+        record = self.move_to_move_record(move=move)
+        last_line = 7 if record.piece.color == PieceColor.WHITE else 0
 
-        try:
-            if move:
-                record = self.move_to_move_record(move=move)
-                last_line = 7 if record.piece.color == PieceColor.WHITE else 0
-                to_x, to_y = record.to_pos
 
-                if isinstance(record.piece, Pawn) and to_y == last_line:
-                    self.promotion = True
+        if move:
+            to_x, to_y = record.to_pos
+            if isinstance(record.piece, Pawn) and to_y == last_line:
+                self.promotion = True
+            self.make_move(record)
 
-                self.make_move(record)
-                self.render.clear_highlighting_data()
-                self.render.clear_highlighting_selected_cell_data()
-                self.mouse_first_right_click = False
-                self.available_moves = []
-                self.avl_moves = []
-                return MoveResult.OK
-
-            elif piece.color == self.selected_piece.color:
-                self.render.clear_highlighting_data()
-                self.render.clear_highlighting_selected_cell_data()
-                self.available_moves = []
-                self.avl_moves = []
-
-                self.mouse_first_right_click = False
-                if piece.cord == (board_x, board_y):
-                    return MoveResult.INVALID_MOVE
-                self.mouse_right_button(board_x=board_x, board_y=board_y)
-
-            else:
-                self.render.clear_highlighting_data()
-                self.render.clear_highlighting_selected_cell_data()
-                self.mouse_first_right_click = False
-
+            return MoveResult.OK
+        elif piece.color == self.selected_piece.color:
+            if piece.cord == (board_x, board_y):
                 return MoveResult.INVALID_MOVE
-        except Exception as ex:
-            print(ex.args)
 
-            self.render.clear_highlighting_data()
-            self.render.clear_highlighting_selected_cell_data()
-            self.mouse_first_right_click = False
-            self.available_moves = []
-            self.avl_moves = []
-            return MoveResult.ERROR
+        else:
+            return MoveResult.INVALID_MOVE
+
+        return MoveResult.ERROR
+
+
+    def clear_available_moves(self):
+        self.available_moves = []
+        self.avl_moves = []
 
 
     def make_move(self, record: MoveRecord):
@@ -395,7 +294,7 @@ class Game:
         self.chessboard.apply_move(mr)
         king_is_check: bool = self.chessboard.king_is_check(move.piece.color)
         self.chessboard.undo(mr)
-        print(mr, self.chessboard.castling_rights)
+
 
         if move.special in (MoveSpecial.CASTLE_KINGSIDE, MoveSpecial.CASTLE_QUEENSIDE):
             if not self.can_king_castle(move_record=mr):
@@ -486,10 +385,21 @@ class Game:
 
 
 
+def make_promotion( board_x, board_y, record):
+    fig = select_promotion_figure(
+        cord=record.to_pos,
+        direction=record.piece.direction,
+        board_x=board_x,
+        board_y=board_y
+    )
+    if fig == 0:
+        return 0
 
 
-
-
+    x, y = record.to_pos
+    figure = fig(x=x, y=y, color=record.piece.color)
+    record.promotion_pawn = figure
+    return record
 
 
 def get_figures_of_config(*, config) -> list[Figure]:
@@ -556,6 +466,6 @@ def select_promotion_figure(cord, direction, board_x, board_y):
         (x, y - direction * 3): Bishop
     }
     if not (board_x, board_y) in dict_cord.keys():
-        raise IndexError("Er")
+        return 0
     fig = dict_cord[(board_x, board_y)]
     return fig
