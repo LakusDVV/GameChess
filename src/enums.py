@@ -39,3 +39,9 @@ class GameStatus(Enum):
     PAT = auto()
     CHECKMATE = auto()
     EXIT = auto()
+
+class ClickResult(Enum):
+    NOTHING = auto()
+    SELECT = auto()
+    MOVE = auto()
+    CHANGE_SELECTION = auto()

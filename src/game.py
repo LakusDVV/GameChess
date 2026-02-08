@@ -2,7 +2,7 @@
 from copy import deepcopy
 from typing import Optional
 from src.chessboard import ChessBoard
-from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus
+from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus, ClickResult
 from src.render import TextureManager, Render
 from src.dataclass import Move, MoveRecord, CastlingRights, History
 from src.shapes import Figure, King, Queen, Bishop, Knight, Rook, Pawn
@@ -118,35 +118,48 @@ class Game:
 
 
     def selected_cell(self, board_x, board_y):
-        board = self.chessboard.get_board()
 
-        if not self.first_select:
-            piece = board[board_y][board_x]
+        result = self.analyze_select(pos=(board_x, board_y))
+        piece = self.chessboard.get_piece(cord=(board_x, board_y))
 
-            if piece == 0:
-                return 0
+        match result:
+            case ClickResult.SELECT:
+                self.selected_piece = piece
+                self._first_select(piece=piece)
 
-            self.selected_piece = piece
+            case ClickResult.CHANGE_SELECTION:
+                self._first_select(piece=piece)
 
-            if self.selected_piece.color == self.has_move:
+            case ClickResult.MOVE:
+                self._second_select(piece=piece, board_x=board_x, board_y=board_y)
 
-                data = self._first_select(board_x=board_x, board_y=board_y)
+            case ClickResult.NOTHING:
+                pass
 
-                print(data)
-                if data["status"] == MoveResult.OK:
-                    self.first_select= True
 
-            else:
-                print("Error, this piece doesn't have move")
 
-        elif self.first_select:
-            status = self._second_select(board_x=board_x, board_y=board_y)
 
-            if status == MoveResult.OK:
-                self.after_move()
-
-        print(self.chessboard)
-        return 1
+        #     self.selected_piece = piece
+        #
+        #     if self.selected_piece.color == self.has_move:
+        #
+        #         data = self._first_select(board_x=board_x, board_y=board_y)
+        #
+        #         print(data)
+        #         if data["status"] == MoveResult.OK:
+        #             self.first_select= True
+        #
+        #     else:
+        #         print("Error, this piece doesn't have move")
+        #
+        # elif self.first_select:
+        #     status = self._second_select(board_x=board_x, board_y=board_y)
+        #
+        #     if status == MoveResult.OK:
+        #         self.after_move()
+        #
+        # print(self.chessboard)
+        # return 1
 
 
     def get_game_info(self):
@@ -157,15 +170,35 @@ class Game:
 
 
 
+    def analyze_select(self, *, pos: tuple[int, int]) -> ClickResult:
+        piece = self.chessboard.get_piece(cord=pos)
+        x, y = pos
 
-    def _first_select(self, *, board_x, board_y):
+        if self.selected_piece is None:
+            if piece:
+                return ClickResult.SELECT
+            return ClickResult.NOTHING
+
+        if piece and piece.color == self.selected_piece.color:
+            return ClickResult.CHANGE_SELECTION
+
+        if self.find_move_to(x, y):
+            return ClickResult.MOVE
+
+        return ClickResult.NOTHING
+
+
+
+
+
+
+    def _first_select(self, *, piece: Figure):
         returned_data = {
             "selected_piece": 0,
             "status": MoveResult.OK,
             "moves": []
         }
-        board = self.chessboard.get_board()
-        piece = board[board_y][board_x]
+
 
         moves = piece.get_moves(chessboard=self.chessboard)
         data = self.filter_moves(moves=moves)
@@ -189,10 +222,8 @@ class Game:
         return returned_data
 
 
-    def _second_select(self, *, board_x, board_y):
+    def _second_select(self, *, piece: Figure, board_x: int, board_y: int):
         move = self.find_move_to(to_x=board_x, to_y=board_y)
-        board = self.chessboard.get_board()
-        piece = board[board_y][board_x]
 
         record = self.move_to_move_record(move=move)
         last_line = 7 if record.piece.color == PieceColor.WHITE else 0
@@ -205,12 +236,8 @@ class Game:
             self.make_move(record)
 
             return MoveResult.OK
-        elif piece.color == self.selected_piece.color:
-            if piece.cord == (board_x, board_y):
-                return MoveResult.INVALID_MOVE
 
-        else:
-            return MoveResult.INVALID_MOVE
+
 
         return MoveResult.ERROR
 
