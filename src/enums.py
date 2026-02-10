@@ -24,7 +24,7 @@ class MoveResult(Enum):
     INVALID_MOVE = auto()
     CELL_OCCUPIED = auto()
     CHECK = auto()
-    CHECKMATE = auto()
+    NOTHING = auto()
     ERROR = auto()
 
 class MoveSpecial(Enum):

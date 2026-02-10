@@ -38,7 +38,7 @@ class Game:
     def run(self):
         status = GameStatus.IN_PROGRESS
         print(self.chessboard)
-        while status == GameStatus.IN_PROGRESS:
+        while status != GameStatus.EXIT and self.game_status == GameStatus.IN_PROGRESS:
 
             status = self.update()
 
@@ -68,8 +68,8 @@ class Game:
             if prom_rec:
                 self.chessboard.undo(rec)
                 self.chessboard.apply_move(prom_rec)
-                return self.after_move()
-            return GameStatus.IN_PROGRESS
+                self.after_move()
+
         text = input("x, y: ")
 
 
@@ -80,19 +80,27 @@ class Game:
 
         try:
             int_x, int_y = int(str_x), int(str_y)
+            status = self.selected_cell(board_x=int_x, board_y=int_y)
+            if status["first_select_data"]:
+                first_s_d = status["first_select_data"]
+                print(f"{first_s_d["selected_piece"]}, {first_s_d["status"]}, {first_s_d["moves"]}")
+
+            elif status["second_select_data"]:
+                print(status["second_select_data"])
+
+            print(status)
+
 
         except Exception as ex:
             print(f'Error {ex}')
-            return GameStatus.IN_PROGRESS
 
-
-
-        status = self.selected_cell(board_x=int_x, board_y=int_y)
-        print(status)
         print(self.get_game_info())
 
 
-        return GameStatus.IN_PROGRESS
+
+
+
+
 
 
     def create_figures(self):
@@ -126,10 +134,10 @@ class Game:
 
 
 
-    def after_move(self) -> GameStatus:
+    def after_move(self):
         self.has_move = self.has_move.opposite()
 
-        return self.this_end(self.has_move)
+        self.game_status = self.this_end(self.has_move)
 
 
 
@@ -138,6 +146,11 @@ class Game:
 
 
     def selected_cell(self, board_x, board_y):
+        data = {
+            "status": GameStatus.IN_PROGRESS,
+            "first_select_data": {},
+            "second_select_data": MoveResult.NOTHING
+        }
 
         result = self.analyze_select(pos=(board_x, board_y))
         piece = self.chessboard.get_piece(cord=(board_x, board_y))
@@ -145,28 +158,25 @@ class Game:
         match result:
             case ClickResult.SELECT:
                 self.selected_piece = piece
-                self._first_select(piece=piece)
+                data["first_select_data"] = self._first_select(piece=piece)
 
 
             case ClickResult.CHANGE_SELECTION:
-                self._first_select(piece=piece)
+                data["first_select_data"] = self._first_select(piece=piece)
 
             case ClickResult.MOVE:
                 stat = self._second_select(piece=piece, board_x=board_x, board_y=board_y)
                 if stat == MoveResult.OK:
-                    return self.after_move()
+                    data["second_select_data"] = stat
 
             case ClickResult.NOTHING:
                 pass
 
-
-        return GameStatus.IN_PROGRESS
+        return data
 
 
     def get_game_info(self):
         return {
-            "selected_piece": self.selected_piece.__str__() if not self.selected_piece is None else 0,
-            "selected_piece_cord": self.selected_piece.cord if not self.selected_piece is None else 0,
             "who move": self.has_move,
             "status": self.game_status
         }
@@ -232,7 +242,6 @@ class Game:
         record = self.move_to_move_record(move=move)
         last_line = 7 if record.piece.color == PieceColor.WHITE else 0
 
-
         if move:
             to_x, to_y = record.to_pos
             if isinstance(record.piece, Pawn) and to_y == last_line:
@@ -240,8 +249,6 @@ class Game:
             self.make_move(record)
 
             return MoveResult.OK
-
-
 
         return MoveResult.ERROR
 
