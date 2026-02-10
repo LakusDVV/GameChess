@@ -46,8 +46,32 @@ class Game:
         print(f"game_finished {status}")
 
 
-    def update(self):
+    def update(self, x:int=0, y:int=0):
+
+        if self.promotion:
+            print("promotion, selected figure: q (Queen), k (Knight), r (Rook), b (Bishop)")
+            text = input()
+            sel_fig = Pawn
+            match text.lower():
+                case "q" | "queen":
+                    sel_fig = Queen
+                case "k" | "knight":
+                    sel_fig = Knight
+                case "r" | "rook":
+                    sel_fig = Rook
+                case "b" | "bishop":
+                    sel_fig = Bishop
+
+
+            rec = self.history.pop()
+            prom_rec = make_promotion(fig=sel_fig, record=rec)
+            if prom_rec:
+                self.chessboard.undo(rec)
+                self.chessboard.apply_move(prom_rec)
+                return self.after_move()
+            return GameStatus.IN_PROGRESS
         text = input("x, y: ")
+
 
         if text.lower() == "stop":
             return GameStatus.EXIT
@@ -60,6 +84,8 @@ class Game:
         except Exception as ex:
             print(f'Error {ex}')
             return GameStatus.IN_PROGRESS
+
+
 
         status = self.selected_cell(board_x=int_x, board_y=int_y)
         print(status)
@@ -100,21 +126,15 @@ class Game:
 
 
 
-    def after_move(self):
-        record = self.history.top()
-
+    def after_move(self) -> GameStatus:
         self.has_move = self.has_move.opposite()
 
-        kx, ky = self.chessboard.find_king(color=self.has_move)
-        if self.chessboard.is_square_attacked(x=kx, y=ky, enemy=self.has_move.opposite()):
-            self.render.change_check_data(new_pos=(kx, ky))
+        return self.this_end(self.has_move)
 
-        else:
-            self.render.clear_check_data()
 
-        game_status = self.this_end(self.has_move)
-        print(game_status)
-        print(self.chessboard.castling_rights)
+
+    def current_king_status(self):
+        return self.chessboard.king_is_check(self.has_move)
 
 
     def selected_cell(self, board_x, board_y):
@@ -127,17 +147,20 @@ class Game:
                 self.selected_piece = piece
                 self._first_select(piece=piece)
 
+
             case ClickResult.CHANGE_SELECTION:
                 self._first_select(piece=piece)
 
             case ClickResult.MOVE:
                 stat = self._second_select(piece=piece, board_x=board_x, board_y=board_y)
                 if stat == MoveResult.OK:
-                    self.after_move()
+                    return self.after_move()
 
             case ClickResult.NOTHING:
                 pass
 
+
+        return GameStatus.IN_PROGRESS
 
 
     def get_game_info(self):
@@ -341,8 +364,6 @@ class Game:
         prev_castling_rights: CastlingRights = deepcopy(self.chessboard.castling_rights)
         prev_en_passant: Optional[tuple[int, int]] = self.chessboard.en_passant_target
 
-
-
         board = self.chessboard.get_board()
         new_x, new_y = move.to_pos
 
@@ -393,17 +414,7 @@ class Game:
 
 
 
-def make_promotion( board_x, board_y, record):
-    fig = select_promotion_figure(
-        cord=record.to_pos,
-        direction=record.piece.direction,
-        board_x=board_x,
-        board_y=board_y
-    )
-    if fig == 0:
-        return 0
-
-
+def make_promotion(fig: Figure, record):
     x, y = record.to_pos
     figure = fig(x=x, y=y, color=record.piece.color)
     record.promotion_pawn = figure

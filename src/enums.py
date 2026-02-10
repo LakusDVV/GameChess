@@ -30,8 +30,7 @@ class MoveResult(Enum):
 class MoveSpecial(Enum):
     CASTLE_KINGSIDE = auto() # O-O
     CASTLE_QUEENSIDE = auto() # 0-0-0
-    EN_PASSANT = auto()
-    PROMOTION_PAWN = auto() # Need be divided into capture and simple move
+    EN_PASSANT = auto() # Need be divided into capture and simple move
     CAPTURE = auto()
 
 class GameStatus(Enum):
