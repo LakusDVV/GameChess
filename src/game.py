@@ -54,12 +54,12 @@ class Game:
 
         str_x, str_y = text.split(" ")
 
-        print(f"x: {str_x}, type: {type(str_x)}\n"
-              f"y: {str_y}, type: {type(str_y)}\n")
+        try:
+            int_x, int_y = int(str_x), int(str_y)
 
-        int_x, int_y = int(str_x), int(str_y)
-        print(f"x: {int_x}, type: {type(int_x)}\n"
-              f"y: {int_y}, type: {type(int_y)}\n")
+        except Exception as ex:
+            print(f'Error {ex}')
+            return GameStatus.IN_PROGRESS
 
         status = self.selected_cell(board_x=int_x, board_y=int_y)
         print(status)
@@ -131,39 +131,19 @@ class Game:
                 self._first_select(piece=piece)
 
             case ClickResult.MOVE:
-                self._second_select(piece=piece, board_x=board_x, board_y=board_y)
+                stat = self._second_select(piece=piece, board_x=board_x, board_y=board_y)
+                if stat == MoveResult.OK:
+                    self.after_move()
 
             case ClickResult.NOTHING:
                 pass
 
 
 
-
-        #     self.selected_piece = piece
-        #
-        #     if self.selected_piece.color == self.has_move:
-        #
-        #         data = self._first_select(board_x=board_x, board_y=board_y)
-        #
-        #         print(data)
-        #         if data["status"] == MoveResult.OK:
-        #             self.first_select= True
-        #
-        #     else:
-        #         print("Error, this piece doesn't have move")
-        #
-        # elif self.first_select:
-        #     status = self._second_select(board_x=board_x, board_y=board_y)
-        #
-        #     if status == MoveResult.OK:
-        #         self.after_move()
-        #
-        # print(self.chessboard)
-        # return 1
-
-
     def get_game_info(self):
         return {
+            "selected_piece": self.selected_piece.__str__() if not self.selected_piece is None else 0,
+            "selected_piece_cord": self.selected_piece.cord if not self.selected_piece is None else 0,
             "who move": self.has_move,
             "status": self.game_status
         }
@@ -188,13 +168,9 @@ class Game:
         return ClickResult.NOTHING
 
 
-
-
-
-
     def _first_select(self, *, piece: Figure):
         returned_data = {
-            "selected_piece": 0,
+            "selected_piece": piece,
             "status": MoveResult.OK,
             "moves": []
         }
@@ -203,17 +179,22 @@ class Game:
         moves = piece.get_moves(chessboard=self.chessboard)
         data = self.filter_moves(moves=moves)
 
-        if data:
+        if data["moves_and_statuses"]: # If figure have at least one move
             right_moves = data["right_moves"]
-            if not right_moves:
-                return MoveResult.CHECK
+
+            for _, val in data["moves_and_statuses"]:
+                if val != MoveResult.CHECK:
+                    break
+            else:
+                returned_data["status"] = MoveResult.CHECK
+                return returned_data
+
 
             for move in right_moves:
                 self.avl_moves.append(move.to_pos)
 
             self.available_moves = right_moves
 
-            returned_data["selected_piece"] = piece
             returned_data["moves"] = right_moves
 
             return returned_data
