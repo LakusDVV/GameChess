@@ -70,6 +70,7 @@ class Game:
                 self.chessboard.undo(rec)
                 self.chessboard.apply_move(prom_rec)
                 self.after_move()
+                return GameStatus.IN_PROGRESS
 
         text = input("x, y: ")
 
