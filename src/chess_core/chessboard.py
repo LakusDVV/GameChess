@@ -1,4 +1,4 @@
-from src.shapes import King, Figure, Rook, Pawn, Knight, Queen, Bishop
+from src.chess_core.shapes import King, Figure, Rook, Pawn, Knight, Queen, Bishop
 
 from src.enums import MoveResult, PieceColor
 from src.dataclass import MoveRecord, CastlingRights

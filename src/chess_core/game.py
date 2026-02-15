@@ -1,11 +1,10 @@
-# import raylibpy as rl
 from copy import deepcopy
 from typing import Optional
-from src.chessboard import ChessBoard
+from src.chess_core.chessboard import ChessBoard
 from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus, ClickResult
-from src.render import TextureManager, Render
+
 from src.dataclass import Move, MoveRecord, CastlingRights, History
-from src.shapes import Figure, King, Queen, Bishop, Knight, Rook, Pawn
+from src.chess_core.shapes import Figure, King, Queen, Bishop, Knight, Rook, Pawn
 
 
 
@@ -15,10 +14,6 @@ class Game:
         self.tile_size = 70
 
         self.chessboard = ChessBoard()
-        # self.texture_manager = TextureManager()
-
-        # self.render = Render(chessboard=self.chessboard, texture_manager=self.texture_manager)
-        # self.texture_manager.load_textures()
 
         self.create_figures()
 
@@ -44,13 +39,13 @@ class Game:
             status = self.update()
 
 
-        print(f"game_finished {status}")
 
 
-    def update(self, x:int=0, y:int=0):
+
+    def update(self, x:int=0, y:int=0, command = 0):
 
         if self.promotion:
-            print("promotion, selected figure: q (Queen), k (Knight), r (Rook), b (Bishop)")
+
             text = input()
             sel_fig = Pawn
             match text.lower():

@@ -7,7 +7,7 @@ from src.enums import PieceColor
 
 
 if TYPE_CHECKING:
-    from src.chessboard import ChessBoard
+    from src.chess_core.chessboard import ChessBoard
 
 class RenderComponent:
     def __init__(self, texture):
@@ -72,8 +72,7 @@ class Render:
         width = self.cols * self.tile_size
         height = self.rows * self.tile_size
 
-        rl.init_window(width, height, "Chess")
-        rl.set_target_fps(60)
+
 
         self._chessboard: ChessBoard = chessboard
         self.texture_manager= texture_manager

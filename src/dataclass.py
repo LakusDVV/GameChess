@@ -3,7 +3,7 @@ from typing import Optional, TYPE_CHECKING
 from src.enums import PieceColor, MoveSpecial
 
 if TYPE_CHECKING:
-    from shapes import Figure
+    from src.chess_core.shapes import Figure
 
 
 @dataclass(frozen=True)
