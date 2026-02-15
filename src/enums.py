@@ -44,3 +44,7 @@ class ClickResult(Enum):
     SELECT = auto()
     MOVE = auto()
     CHANGE_SELECTION = auto()
+
+
+class Errors(Enum):
+    Promotion_pawn_dont_select = auto()

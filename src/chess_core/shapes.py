@@ -8,7 +8,7 @@ class Figure:
     texture_key: str
 
 
-    def __init__(self, *, x: int = 0, y: int = 0, color: PieceColor = PieceColor.WHITE, tile_size=70, texture):
+    def __init__(self, *, x: int = 0, y: int = 0, color: PieceColor = PieceColor.WHITE, tile_size=70, texture=0):
         self.cord = (x, y)
         self.tile_size = tile_size
 

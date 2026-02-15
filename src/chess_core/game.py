@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Optional
 from src.chess_core.chessboard import ChessBoard
-from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus, ClickResult
+from src.enums import MoveResult, PieceColor, MoveSpecial, GameStatus, ClickResult, Errors
 
 from src.dataclass import Move, MoveRecord, CastlingRights, History
 from src.chess_core.shapes import Figure, King, Queen, Bishop, Knight, Rook, Pawn
@@ -15,8 +15,6 @@ class Game:
 
         self.chessboard = ChessBoard()
 
-        self.create_figures()
-
         self.first_select = False
 
         self.selected_piece: Figure = Figure()
@@ -28,15 +26,13 @@ class Game:
         self.game_status = GameStatus.IN_PROGRESS
 
         self.history: History = History()
+
+        self.promotion_figure = None
+
         print(self.chessboard.castling_rights)
 
 
-    def run(self):
-        status = GameStatus.IN_PROGRESS
-        print(self.chessboard)
-        while status != GameStatus.EXIT and self.game_status == GameStatus.IN_PROGRESS:
 
-            status = self.update()
 
 
 
@@ -46,18 +42,10 @@ class Game:
 
         if self.promotion:
 
-            text = input()
-            sel_fig = Pawn
-            match text.lower():
-                case "q" | "queen":
-                    sel_fig = Queen
-                case "k" | "knight":
-                    sel_fig = Knight
-                case "r" | "rook":
-                    sel_fig = Rook
-                case "b" | "bishop":
-                    sel_fig = Bishop
+            if self.promotion_figure is None:
+                return Errors.Promotion_pawn_dont_select
 
+            sel_fig = self.promotion_figure
 
             rec = self.history.pop()
             prom_rec = make_promotion(fig=sel_fig, record=rec)
@@ -65,6 +53,7 @@ class Game:
                 self.chessboard.undo(rec)
                 self.chessboard.apply_move(prom_rec)
                 self.after_move()
+
                 return GameStatus.IN_PROGRESS
 
         text = input("x, y: ")
@@ -76,7 +65,6 @@ class Game:
         str_x, str_y = text.split(" ")
 
         try:
-
             int_x, int_y = int(str_x), int(str_y)
 
             status = self.selected_cell(board_x=int_x, board_y=int_y)
@@ -104,7 +92,7 @@ class Game:
 
 
 
-    def create_figures(self):
+    def create_figures(self, texture_manager):
         logs = ""
         configs = {
             "black": {
@@ -120,7 +108,12 @@ class Game:
         }
         for key, value in configs.items():
             logs += f"creating {key} figures \n"
-            figures = get_figures_info(color=value["color"], fig_y=value["fig_y"], pawn_y=value["pawn_y"])
+            figures = get_figures_info(
+                color=value["color"],
+                fig_y=value["fig_y"],
+                pawn_y=value["pawn_y"],
+                texture_manager=texture_manager
+            )
 
             for fig_name, conf in figures.items():
                 self.append_figures_on_board(
@@ -134,16 +127,10 @@ class Game:
             status = self.chessboard.add_figure(x=x, y=y, figure=fig)
 
 
-
     def after_move(self):
         self.has_move = self.has_move.opposite()
 
         self.game_status = self.this_end(self.has_move)
-
-
-
-    def current_king_status(self):
-        return self.chessboard.king_is_check(self.has_move)
 
 
     def selected_cell(self, board_x, board_y):
@@ -180,14 +167,6 @@ class Game:
                 pass
 
         return data
-
-
-    def get_game_info(self):
-        return {
-            "who move": self.has_move,
-            "status": self.game_status
-        }
-
 
 
     def analyze_select(self, *, pos: tuple[int, int]) -> ClickResult:
@@ -427,6 +406,30 @@ class Game:
         return mr
 
 
+    # interfaces:
+
+    def get_chessboard(self):
+        return self.chessboard
+
+
+    def get_game_info(self):
+        return {
+            "who move": self.has_move,
+            "status": self.game_status
+        }
+
+
+    def clear_promotion_figure(self):
+        self.promotion_figure = None
+
+
+    def get_current_king_status(self):
+        """
+        Returns: True if king check and False if king not check
+        """
+        return self.chessboard.king_is_check(self.has_move)
+
+
 
 def make_promotion(fig: Figure, record):
     x, y = record.to_pos
@@ -442,47 +445,54 @@ def get_figures_of_config(*, config) -> list[Figure]:
         fig_type: Figure = config["type"]
         x, y = config["cords"][i]
         color: PieceColor = config["color"]
-        figures.append(fig_type(x=x, y=y, color=color))
+        texture = config["texture"]
+        figures.append(fig_type(x=x, y=y, color=color, texture=texture))
     return figures
 
 
-def get_figures_info(color, fig_y, pawn_y):
+def get_figures_info(*, color, fig_y, pawn_y, texture_manager):
     return {
         "king": {
             "type": King,
             "count": 1,
             "cords": [(3, fig_y)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_king")
         },
         "queen": {
             "type": Queen,
             "count": 1,
             "cords": [(4, fig_y)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_queen")
         },
         "bishops": {
             "type": Bishop,
             "count": 2,
             "cords": [(5, fig_y), (2, fig_y)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_bishop")
         },
         "knights": {
             "type": Knight,
             "count": 2,
             "cords": [(6, fig_y), (1, fig_y)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_knight")
         },
         "rooks": {
             "type": Rook,
             "count": 2,
             "cords": [(7, fig_y), (0, fig_y)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_rook")
         },
         "pawns": {
             "type": Pawn,
             "count": 8,
             "cords": [(x, pawn_y) for x in range(8)],
-            "color": color
+            "color": color,
+            "texture": texture_manager.get_texture(f"{color}_pawn")
         }
     }
 

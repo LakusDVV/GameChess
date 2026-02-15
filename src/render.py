@@ -69,13 +69,13 @@ class Render:
         self.cols = 8
         self.tile_size = 70
         self.radius = self.tile_size // 5.5
-        width = self.cols * self.tile_size
-        height = self.rows * self.tile_size
+        # width = self.cols * self.tile_size
+        # height = self.rows * self.tile_size
 
 
 
         self._chessboard: ChessBoard = chessboard
-        self.texture_manager= texture_manager
+        self.texture_manager = texture_manager
         self.light_color = rl.Color(r=240, g=217, b=181, a=255)
         self.dark_color = rl.Color(r=181, g=136, b=99, a=255)
 
